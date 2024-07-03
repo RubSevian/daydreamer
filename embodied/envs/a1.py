@@ -10,7 +10,7 @@ class A1(embodied.Env):
     assert task in ('sim', 'real'), task
     import motion_imitation.envs.env_builder as env_builder
     self._gymenv = env_builder.build_env(
-        enable_rendering=False,
+        enable_rendering=True,
         num_action_repeat=repeat, use_real_robot=bool(task == 'real'))
     self._env = gym.Gym(
         self._gymenv, obs_key='vector', act_key='action', checks=True)

@@ -40,17 +40,17 @@ NUM_MOTORS = 12
 NUM_LEGS = 4
 MOTOR_NAMES = [
     "FR_hip_joint",
-    "FR_upper_joint",
-    "FR_lower_joint",
+    "FR_thigh_joint",
+    "FR_calf_joint",
     "FL_hip_joint",
-    "FL_upper_joint",
-    "FL_lower_joint",
+    "FL_thigh_joint",
+    "FL_calf_joint",
     "RR_hip_joint",
-    "RR_upper_joint",
-    "RR_lower_joint",
+    "RR_thigh_joint",
+    "RR_calf_joint",
     "RL_hip_joint",
-    "RL_upper_joint",
-    "RL_lower_joint",
+    "RL_thigh_joint",
+    "RL_calf_joint",
 ]
 INIT_RACK_POSITION = [0, 0, 1]
 INIT_POSITION = [0, 0, 0.48]
