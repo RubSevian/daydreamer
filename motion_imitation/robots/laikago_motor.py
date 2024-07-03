@@ -20,7 +20,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
-import collections
+import collections.abc
 import numpy as np
 
 from motion_imitation.robots import robot_config
@@ -59,7 +59,7 @@ class LaikagoMotorModel(object):
     self._kd = kd
     self._torque_limits = torque_limits
     if torque_limits is not None:
-      if isinstance(torque_limits, (collections.Sequence, np.ndarray)):
+      if isinstance(torque_limits, (collections.abc.Sequence, np.ndarray)):
         self._torque_limits = np.asarray(torque_limits)
       else:
         self._torque_limits = np.full(NUM_MOTORS, torque_limits)
