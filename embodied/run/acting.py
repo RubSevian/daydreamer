@@ -72,7 +72,7 @@ def acting(agent, env, replay, logger, actordir, args):
 
   print('Start collection loop.')
   policy = lambda *args: agent.policy(
-      *args, mode='explore' if should_expl(step) else 'train')
+      *args, mode='explore' if should_expl(step) else 'train')  # we have different mods in policy method
 
   while step < args.steps:
     if should_sync(step):

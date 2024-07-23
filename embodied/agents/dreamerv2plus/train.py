@@ -101,6 +101,9 @@ def main(argv=None):
       replay = make_replay(config, remote_addr=parsed.learner_addr)
       embodied.run.acting(agent, env, replay, logger, outdir, args)
 
+    elif config.run == "eval":  # TODO: Implement inference
+      raise NotImplementedError(config.run)
+
     else:
       raise NotImplementedError(config.run)
   finally:

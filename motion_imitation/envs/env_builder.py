@@ -23,7 +23,7 @@ import numpy as np
 from motion_imitation.envs import locomotion_gym_config, locomotion_gym_env
 from motion_imitation.envs.env_wrappers import observation_dictionary_to_array_wrapper, simple_openloop, simple_forward_task, trajectory_generator_wrapper_env, rma_task
 from motion_imitation.envs.sensors import robot_sensors
-from motion_imitation.robots import a1 #, a1_robot  # FIXME
+from motion_imitation.robots import a1, a1_robot
 
 def build_env(enable_rendering=False,
               num_action_repeat=20,
@@ -44,8 +44,8 @@ def build_env(enable_rendering=False,
   robot_kwargs = {"self_collision_enabled": False}
 
   if use_real_robot:
-    raise NotImplementedError("real robot interface not implemeted yet. Use task a1_sim")
-    # robot_class = a1_robot.A1Robot  # FIXME
+    # raise NotImplementedError("real robot interface not implemeted yet. Use task a1_sim")
+    robot_class = a1_robot.A1Robot
   else:
     robot_class = a1.A1
 
