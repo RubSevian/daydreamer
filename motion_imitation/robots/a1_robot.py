@@ -52,6 +52,8 @@ MOTOR_NAMES = [
     "RL_thigh_joint",
     "RL_calf_joint",
 ]
+
+## FIX
 INIT_RACK_POSITION = [0, 0, 1]
 INIT_POSITION = [0, 0, 0.48]
 JOINT_DIRECTIONS = np.ones(12)
@@ -85,7 +87,7 @@ MOTOR_WARN_TEMP_C = 50.0
 
 COMMAND_CHANNEL_NAME = 'LCM_Low_Cmd'
 STATE_CHANNEL_NAME = 'LCM_Low_State'
-
+## FIX
 # Bases on the readings from Laikago's default pose.
 INIT_MOTOR_ANGLES = np.array([
     laikago_pose_utils.LAIKAGO_DEFAULT_ABDUCTION_ANGLE,
@@ -93,18 +95,21 @@ INIT_MOTOR_ANGLES = np.array([
     laikago_pose_utils.LAIKAGO_DEFAULT_KNEE_ANGLE
 ] * NUM_LEGS)
 
+## FIX
+
 HIP_NAME_PATTERN = re.compile(r"\w+_hip_\w+")
 UPPER_NAME_PATTERN = re.compile(r"\w+_upper_\w+")
 LOWER_NAME_PATTERN = re.compile(r"\w+_lower_\w+")
 TOE_NAME_PATTERN = re.compile(r"\w+_toe\d*")
 IMU_NAME_PATTERN = re.compile(r"imu\d*")
 
+## FIX
 URDF_FILENAME = "a1/a1.urdf"
 
 _BODY_B_FIELD_NUMBER = 2
 _LINK_A_FIELD_NUMBER = 3
 
-
+## FIX and check a1.py
 class A1Robot(a1.A1):
   """Interface for real A1 robot."""
   MPC_BODY_MASS = 108 / 9.8
@@ -112,6 +117,7 @@ class A1Robot(a1.A1):
 
   MPC_BODY_HEIGHT = 0.24
   ACTION_CONFIG = [
+    ## FIX name , not fix names(upper etc)
       locomotion_gym_config.ScalarField(name="FR_hip_motor",
                                         upper_bound=0.802851455917,
                                         lower_bound=-0.802851455917),

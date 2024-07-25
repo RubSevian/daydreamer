@@ -28,6 +28,7 @@ import collections
 import collections.abc
 import copy
 import math
+import time
 import re
 import numpy as np
 from motion_imitation.robots import minitaur_constants
@@ -57,6 +58,9 @@ _LEG_NAME_PATTERN3 = re.compile(r"motor\D*link")
 SENSOR_NOISE_STDDEV = (0.0,) * 6
 MINITAUR_DEFAULT_MOTOR_DIRECTIONS = (-1, -1, -1, -1, 1, 1, 1, 1)
 MINITAUR_DEFAULT_MOTOR_OFFSETS = (0, 0, 0, 0, 0, 0, 0, 0)
+
+
+
 MINITAUR_NUM_MOTORS = 8
 TWO_PI = 2 * math.pi
 MINITAUR_DOFS_PER_LEG = 2
@@ -101,7 +105,7 @@ class Minitaur(object):
                motor_model_class=minitaur_motor.MotorModel,
                motor_kp=1.0,
                motor_kd=0.02,
-               motor_torque_limits=None,
+               motor_torque_limits= None, #np.array([23.7,23.7,35.55]), # was None
                pd_latency=0.0,
                control_latency=0.0,
                observation_noise_stdev=SENSOR_NOISE_STDDEV,
@@ -222,8 +226,33 @@ class Minitaur(object):
     elif motor_torque_limits is None:
       self._motor_torque_limits = None
     else:
-      self._motor_torque_limits = motor_torque_limits
+      self._motor_torque_limits =np.array([23.7, 23.7, 35.5]*4) #([23.7, 23.7, 35.5]*4)  ----------########-------TORQUE-----------############
+    
+          
+      lower_limits = np.array([-23.7, -23.7, -35.5])
+      upper_limits = np.array([23.7, 23.7, 35.5])
 
+    # Функция для применения ограничений
+      def apply_limits(value, lower_limit, upper_limit):
+        if value < lower_limit:
+           return lower_limit
+        elif value > upper_limit:
+            return upper_limit
+        else:
+            return value
+
+      # Применение ограничений ко всем значениям в массиве
+      limited_motor_velocities = np.array([apply_limits(self._motor_torque_limits[i], lower_limits[i % 3], upper_limits[i % 3]) 
+                                     for i in range(len(self._motor_torque_limits))])
+
+    #print("Ограниченные момента моторов:")
+    #print(self._motor_torque_limits)
+
+    self._motor_torque_limits = limited_motor_velocities
+    #for i in range(1,10):
+     # print(self._motor_torque_limits)
+     # time.sleep(10)   
+      
     self._motor_control_mode = motor_control_mode
     self._motor_model = motor_model_class(
         kp=motor_kp,
@@ -832,7 +861,33 @@ class Minitaur(object):
     """
     motor_velocities = [state[1] for state in self._joint_states]
 
-    motor_velocities = np.multiply(motor_velocities, self._motor_direction)
+    motor_velocities =  np.multiply(motor_velocities, self._motor_direction)
+
+    lower_limits = np.array([-30.1, -30.1, -20.06])
+    upper_limits = np.array([30.1, 30.1, 20.06])
+
+    # Функция для применения ограничений
+    def apply_limits(value, lower_limit, upper_limit):
+      if value < lower_limit:
+          return lower_limit
+      elif value > upper_limit:
+         return upper_limit
+      else:
+         return value
+
+    # Применение ограничений ко всем значениям в массиве
+    limited_motor_velocities = np.array([apply_limits(motor_velocities[i], lower_limits[i % 3], upper_limits[i % 3]) 
+                                     for i in range(len(motor_velocities))])
+
+    #print("Ограниченные скорости моторов:")
+    #print(limited_motor_velocities)
+    motor_velocities = limited_motor_velocities
+
+
+    #for i in range(1,10):
+     # print(motor_velocities)
+      #time.sleep(1) 
+
     return motor_velocities
 
   def GetMotorVelocities(self):
@@ -1528,3 +1583,24 @@ class Minitaur(object):
   def GetConstants(cls):
     del cls
     return minitaur_constants
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

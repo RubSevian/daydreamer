@@ -63,10 +63,13 @@ JOINT_OFFSETS = np.array(
 PI = math.pi
 
 MAX_MOTOR_ANGLE_CHANGE_PER_STEP = 0.2  # TODO
-# TODO: Find appropriate limits.and etc
-MAX_JOINT_VELOCITY = np.inf  # rad/s (was 11)
-MAX_TORQUE = 42  # N-m  # TODO: 45 # TODO
+#MYTEST
 
+TORQUE_LIMIT = np.array([23.7, 23.7, 35.5] * NUM_LEGS) #[23.7, 23.7, 35.5]
+# TODO: Find appropriate limits.and etc
+MAX_JOINT_VELOCITY =  np.array([30.1, 30.1, 20.06] * NUM_LEGS) #np.inf  # rad/s (was 11) //rewrite from urdf vector 3
+# MAX_TORQUE = 42  # N-m  # TODO: 45 # TODO // rewrite vecor 3
+#MAX_TORQUE = 42 # np.array([23.7,23.7,35.55])
 DEFAULT_HIP_POSITIONS = (
      (0.1, 0.8, -1.5), #(0.179, 0.497, 0.360)
      (-0.1, 0.8, -1.5),#(-0.594, 0.219, 0.602)
@@ -87,7 +90,11 @@ KNEE_P_GAIN = 100.0
 KNEE_D_GAIN = 2.0
 
 # Bases on the readings from Laikago's default pose.
+
 INIT_MOTOR_ANGLES = np.array([0, 0.9, -1.8] * NUM_LEGS) # TODO
+
+
+
 
 MOTOR_NAMES = [
     "FR_hip_joint",
@@ -105,15 +112,15 @@ MOTOR_NAMES = [
 ]
 
 MOTOR_MINS = np.array([
-    -0.802851455917,
-    -1.0471975512,
-    -2.69653369433,
+    -0.863,
+    -0.686,
+    -2.818,
 ] * 4)
 
 MOTOR_MAXS = np.array([
-    0.802851455917,
-    4.18879020479,
-    -0.916297857297,
+    0.863,
+    4.501,
+    -0.888,
 ] * 4)
 
 MOTOR_OFFSETS = np.array([
@@ -306,7 +313,7 @@ class A1(minitaur.Minitaur):
       enable_action_interpolation=True,
       enable_action_filter=False,
       motor_control_mode=None,
-      motor_torque_limits=MAX_TORQUE,
+      motor_torque_limits=TORQUE_LIMIT,
       reset_time=1,
       allow_knee_contact=False,
       log_time_per_step=False,
@@ -610,6 +617,8 @@ class A1(minitaur.Minitaur):
       clipped_torques = np.clip(torques, -1 * self._motor_torque_limits, self._motor_torque_limits)
       motor_commands[np.array(range(NUM_MOTORS)) * 5 + 4] = clipped_torques
       return motor_commands
+    #------------------------FIX--------------------------------#
+
 
   def Brake(self):
     # Braking on the real robot has more resistance than this.
@@ -624,8 +633,8 @@ class A1(minitaur.Minitaur):
     pass
 
   def _ValidateMotorStates(self):
-    # Check torque.
-    if any(np.abs(self.GetTrueMotorTorques()) > self._motor_torque_limits):
+    # Check torque. self._motor_torque_limit TORQUE_LIMIT
+    if any(np.abs(self.GetTrueMotorTorques()) > TORQUE_LIMIT):
       raise robot_config.SafetyError(
           "Torque limits exceeded\ntorques: {}".format(
               self.GetTrueMotorTorques()))
@@ -732,3 +741,4 @@ class A1(minitaur.Minitaur):
     # Does not work for Minitaur which has the four bar mechanism for now.
     motor_angles = self.GetMotorAngles()[leg_id * 3:(leg_id + 1) * 3]
     return analytical_leg_jacobian(motor_angles, leg_id)
+

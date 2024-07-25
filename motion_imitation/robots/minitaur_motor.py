@@ -52,7 +52,7 @@ class MotorModel(object):
   def __init__(self,
                kp=1.2,
                kd=0,
-               torque_limits=None,
+               torque_limits= None , # np.array([23.7,23.7,35.55]),#was None
                motor_control_mode=robot_config.MotorControlMode.POSITION):
     self._kp = kp
     self._kd = kd
