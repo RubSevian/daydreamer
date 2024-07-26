@@ -1,9 +1,7 @@
-from __future__ import annotations
-
+# -*- coding: utf-8 -*-
 import pytest
-
-from pybind11_tests import ConstructorStats, UserType
 from pybind11_tests import opaque_types as m
+from pybind11_tests import ConstructorStats, UserType
 
 
 def test_string_list():
@@ -14,7 +12,7 @@ def test_string_list():
     assert lst.back() == "Element 2"
 
     for i, k in enumerate(lst, start=1):
-        assert k == f"Element {i}"
+        assert k == "Element {}".format(i)
     lst.pop_back()
     assert m.print_opaque_list(lst) == "Opaque list: [Element 1]"
 
@@ -34,15 +32,12 @@ def test_pointers(msg):
 
     with pytest.raises(TypeError) as excinfo:
         m.get_void_ptr_value([1, 2, 3])  # This should not work
-    assert (
-        msg(excinfo.value)
-        == """
+    assert msg(excinfo.value) == """
         get_void_ptr_value(): incompatible function arguments. The following argument types are supported:
             1. (arg0: capsule) -> int
 
         Invoked with: [1, 2, 3]
-    """
-    )
+    """  # noqa: E501 line too long
 
     assert m.return_null_str() is None
     assert m.get_null_str_value(m.return_null_str()) is not None

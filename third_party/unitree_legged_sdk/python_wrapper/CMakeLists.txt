@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 2.8.3)
 project(unitree_legged_sdk_python_wrapper)
 
 # check arch and os
@@ -26,3 +26,4 @@ add_subdirectory(third-party/pybind11)
 
 pybind11_add_module(robot_interface python_interface.cpp)
 target_link_libraries(robot_interface PRIVATE ${EXTRA_LIBS} unitree_legged_sdk)
+

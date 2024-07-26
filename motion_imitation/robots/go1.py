@@ -284,7 +284,6 @@ class Go1(a1.A1):
   # limits or its reporting of joint angles.
   JOINT_EPSILON = 0.1
 
-
   def __init__(
       self,
       pybullet_client,
@@ -353,7 +352,7 @@ class Go1(a1.A1):
          accelerometer_variance=ACCELEROMETER_VARIANCE,
          sensor_variance=JOINT_VELOCITY_VARIANCE)
 
-    super(Go1, self).__init__(
+    super().__init__(
         pybullet_client=pybullet_client,
         time_step=time_step,
         action_repeat=action_repeat,
@@ -534,7 +533,7 @@ class Go1(a1.A1):
     if motor_control_mode is None:
       motor_control_mode = self._motor_control_mode
     motor_commands = self._ClipMotorCommands(motor_commands, motor_control_mode)
-    super(A1, self).ApplyAction(motor_commands, motor_control_mode)
+    super().ApplyAction(motor_commands, motor_control_mode)
 
   def Reset(self, reload_urdf=True, default_motor_angles=None, reset_time=3.0):
     self._currently_resetting = True
