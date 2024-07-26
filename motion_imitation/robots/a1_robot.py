@@ -34,7 +34,7 @@ from motion_imitation.robots import a1
 from motion_imitation.robots import minitaur
 from motion_imitation.robots import robot_config
 from motion_imitation.envs import locomotion_gym_config
-from robot_interface import RobotInterface  # pytype: disable=import-error
+# from robot_interface import RobotInterface  # pytype: disable=import-error
 
 NUM_MOTORS = 12
 NUM_LEGS = 4

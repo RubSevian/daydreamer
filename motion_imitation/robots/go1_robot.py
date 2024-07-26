@@ -20,7 +20,7 @@ import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
-
+os.sys.path.insert(1, os.path.dirname(currentdir))
 
 from absl import logging
 import math
@@ -34,7 +34,7 @@ from motion_imitation.robots import go1
 from motion_imitation.robots import minitaur
 from motion_imitation.robots import robot_config
 from motion_imitation.envs import locomotion_gym_config
-from robot_interface import RobotInterface  # pytype: disable=import-error
+import robot_interface as sdk  # type: ignore # pytype: disable=import-error
 
 NUM_MOTORS = 12
 NUM_LEGS = 4
@@ -52,6 +52,8 @@ MOTOR_NAMES = [
     "RL_upper_joint",
     "RL_lower_joint",
 ]
+MOTOR_MODE = 0x0A  # 0x0A - Servo mode
+LOWLEVEL  = 0xff
 INIT_RACK_POSITION = [0, 0, 1]
 INIT_POSITION = [0, 0, 0.48]
 JOINT_DIRECTIONS = np.ones(12)
@@ -155,8 +157,18 @@ class Go1Robot(go1.Go1):
                enable_clip_motor_commands=True,
                reset_func_name='_StandupReset',
                **kwargs):
-    """Initializes the robot class."""
-    # self._timesteps = None
+    
+    if 'velocity_source' in kwargs:
+      del kwargs['velocity_source']
+
+    super().__init__(
+        pybullet_client,
+        time_step=time_step,
+        enable_clip_motor_commands=enable_clip_motor_commands,
+        velocity_source=go1.VelocitySource.IMU_FOOT_CONTACT,
+        reset_func_name=reset_func_name,
+        **kwargs)
+    
     # Initialize pd gain vector
     self._pybullet_client = pybullet_client
     self.time_step = time_step
@@ -175,24 +187,20 @@ class Go1Robot(go1.Go1):
     self._last_reset_time = time.time()
 
     # Initiate UDP for robot state and actions
-    self._robot_interface = RobotInterface(0xff)
-    self._robot_interface.send_command(np.zeros(60, dtype=np.float32))
+    self.udp = sdk.UDP(LOWLEVEL, 8080, "192.168.123.10", 8007)
+    self.safe = sdk.Safety(sdk.LeggedType.Go1)
+    self.cmd = sdk.LowCmd()
+    self.state = sdk.LowState()
+    self.udp.InitCmdData(self.cmd)
+
     # Re-entrant lock to ensure one process commands the robot at a time.
     self._robot_command_lock = multiprocessing.RLock()
     self._pipe = None
     self._child_pipe = None
     self._hold_process = None
-    if 'velocity_source' in kwargs:
-      del kwargs['velocity_source']
 
     reset_func_name='_StandupReset'
-    super().__init__(
-        pybullet_client,
-        time_step=time_step,
-        enable_clip_motor_commands=enable_clip_motor_commands,
-        velocity_source=go1.VelocitySource.IMU_FOOT_CONTACT,
-        reset_func_name=reset_func_name,
-        **kwargs)
+    
     self._init_complete = True
 
   def ReceiveObservation(self):
@@ -201,24 +209,25 @@ class Go1Robot(go1.Go1):
     Synchronous ReceiveObservation is not supported in A1,
     so changging it to noop instead.
     """
-    state = self._robot_interface.receive_observation()
-    self._raw_state = state
+    self.udp.Recv()
+    self.udp.GetRecv(self.state)
+    self._raw_state = self.state
     # Convert quaternion from wxyz to xyzw, which is default for Pybullet.
-    q = state.imu.quaternion
+    q = self.state.imu.quaternion
     self._base_orientation = np.array([q[1], q[2], q[3], q[0]])
-    self._accelerometer_reading = np.array(state.imu.accelerometer)
-    self._motor_angles = np.array([motor.q for motor in state.motorState[:12]])
+    self._accelerometer_reading = np.array(self.state.imu.accelerometer)
+    self._motor_angles = np.array([motor.q for motor in self.state.motorState[:12]])
     self._motor_velocities = np.array(
-        [motor.dq for motor in state.motorState[:12]])
+        [motor.dq for motor in self.state.motorState[:12]])
     self._joint_states = np.array(
         list(zip(self._motor_angles, self._motor_velocities)))
     self._observed_motor_torques = np.array(
-        [motor.tauEst for motor in state.motorState[:12]])
+        [motor.tauEst for motor in self.state.motorState[:12]])
     self._motor_temperatures = np.array(
-        [motor.temperature for motor in state.motorState[:12]])
+        [motor.temperature for motor in self.state.motorState[:12]])
     if self._init_complete:
       # self._SetRobotStateInSim(self._motor_angles, self._motor_velocities)
-      self._velocity_estimator.update(state.tick / 1000.)
+      self._velocity_estimator.update(self.state.tick / 1000.)
       self._UpdatePosition()
 
   def _CheckMotorTemperatures(self):
@@ -241,10 +250,9 @@ class Go1Robot(go1.Go1):
                                             motor_velocities[i])
 
   def GetTrueMotorAngles(self):
-    # TODO
-    # return self._motor_angles.copy()
-    state = self._robot_interface.receive_observation()
-    return np.array([motor.q for motor in state.motorState[:12]])
+    self.udp.Recv()
+    self.udp.GetRecv(self.state)
+    return np.array([motor.q for motor in self.state.motorState[:12]])
 
   def GetMotorAngles(self):
     return minitaur.MapToMinusPiToPi(self._motor_angles).copy()
@@ -286,6 +294,18 @@ class Go1Robot(go1.Go1):
   @property
   def motor_temperatures(self):
     return self._motor_temperatures.copy()
+  
+  def _SendMotorCommand(self, command):
+    for motor_id in range(NUM_MOTORS):  # FIXME
+        self.cmd.motorCmd[motor_id].mode = MOTOR_MODE
+        self.cmd.motorCmd[motor_id].q = command[motor_id * 5]
+        self.cmd.motorCmd[motor_id].Kp = command[motor_id * 5 + 1]
+        self.cmd.motorCmd[motor_id].dq = command[motor_id * 5 + 2]
+        self.cmd.motorCmd[motor_id].Kd = command[motor_id * 5 + 3]
+        self.cmd.motorCmd[motor_id].tau = command[motor_id * 5 + 4]
+    self.safe.PositionLimit(self.cmd)
+    self.udp.SetSend(self.cmd)
+    self.udp.Send()
 
   def ApplyAction(self, motor_commands, motor_control_mode=None):
     """Clips and then apply the motor commands using the motor model.
@@ -312,11 +332,11 @@ class Go1Robot(go1.Go1):
     elif motor_control_mode == robot_config.MotorControlMode.HYBRID:
       command = np.array(motor_commands, dtype=np.float32)
     else:
-      raise ValueError('Unknown motor control mode for A1 robot: {}.'.format(
+      raise ValueError('Unknown motor control mode for Go1 robot: {}.'.format(
           motor_control_mode))
 
     with self._robot_command_lock:
-      self._robot_interface.send_command(command)
+      self._SendMotorCommand(command)
 
   def _HoldPose(self, pose, pipe):
     """Continually sends position command `pose` until `pipe` has a message.
@@ -454,6 +474,5 @@ class Go1Robot(go1.Go1):
 
   def Brake(self):
     self.ReleasePose()
-    self._robot_interface.brake()
     self.LogTimesteps()
     self._Nap()

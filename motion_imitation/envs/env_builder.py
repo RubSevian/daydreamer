@@ -23,7 +23,7 @@ import numpy as np
 from motion_imitation.envs import locomotion_gym_config, locomotion_gym_env
 from motion_imitation.envs.env_wrappers import observation_dictionary_to_array_wrapper, simple_openloop, simple_forward_task, trajectory_generator_wrapper_env, rma_task
 from motion_imitation.envs.sensors import robot_sensors
-from motion_imitation.robots import a1, a1_robot
+from motion_imitation.robots import a1, a1_robot, go1, go1_robot
 
 def build_env(enable_rendering=False,
               num_action_repeat=20,
