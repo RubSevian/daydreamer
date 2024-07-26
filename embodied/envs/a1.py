@@ -5,6 +5,11 @@ from . import gym
 
 
 class A1(embodied.Env):
+  """
+  DEPRECATED CLASS
+  
+  Use legged_robot instead
+  """
 
   def __init__(self, task, repeat=1, length=1000, resets=True):
     assert task in ('sim', 'real'), task

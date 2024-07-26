@@ -29,7 +29,8 @@ def build_env(enable_rendering=False,
               num_action_repeat=20,
               reset_at_current_position=False,
               use_real_robot=False,
-              realistic_sim=True):
+              realistic_sim=True,
+              robot_type=None):  ## FIXME
 
   sim_params = locomotion_gym_config.SimulationParameters()
   sim_params.enable_rendering = enable_rendering
@@ -44,10 +45,15 @@ def build_env(enable_rendering=False,
   robot_kwargs = {"self_collision_enabled": False}
 
   if use_real_robot:
-    # raise NotImplementedError("real robot interface not implemeted yet. Use task a1_sim")
-    robot_class = a1_robot.A1Robot
-  else:
-    robot_class = a1.A1
+    if robot_type == "A1":
+      robot_class = a1_robot.A1Robot
+    else:
+      robot_class = go1_robot.Go1Robot
+  else:  # Sim
+    if robot_type == "A1":
+      robot_class = a1.A1
+    else:
+      robot_class = go1.Go1
 
   if use_real_robot or realistic_sim:
     robot_kwargs["reset_func_name"] = "_SafeJointsReset"

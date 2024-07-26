@@ -1,27 +1,58 @@
 cmake_minimum_required(VERSION 3.5)
 project(unitree_legged_sdk)
 
-include_directories(include)
-
-link_directories(lib)
-
-add_compile_options(-std=c++11)
-
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64)|(X86_64)|(amd64)|(AMD64)")
-  set(EXTRA_LIBS -pthread libunitree_legged_sdk_amd64.so lcm)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(arm64)|(ARM64)|(aarch64)|(AARCH64)")
-  set(EXTRA_LIBS -pthread libunitree_legged_sdk_arm64.so lcm)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(arm32)|(ARM32)|(aarch32)|(AARCH32)")
-  set(EXTRA_LIBS -pthread libunitree_legged_sdk_arm32.so lcm)
-else()
-  message(FATAL_ERROR "Processor architecture not recognized: ${CMAKE_SYSTEM_PROCESSOR}")
+# check arch and os
+message("-- CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+if("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "x86_64.*")
+  set(ARCH amd64)
+endif()
+if("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "aarch64.*")
+  set(ARCH arm64)
 endif()
 
-set(CMAKE_CXX_FLAGS "-O3")
+include_directories(include)
+link_directories(lib/cpp/${ARCH})
 
-add_subdirectory(pybind11)
-pybind11_add_module(robot_interface python_interface.cpp)
-target_link_libraries(robot_interface PRIVATE ${EXTRA_LIBS})
+option(PYTHON_BUILD "build python wrapper" OFF)
+if(PYTHON_BUILD)
+  add_subdirectory(python_wrapper)
+endif()
 
-add_executable(example_walk examples/example_walk.cpp)
-target_link_libraries(example_walk PRIVATE ${EXTRA_LIBS})
+set(EXTRA_LIBS -pthread libunitree_legged_sdk.a)
+set(CMAKE_CXX_FLAGS "-O3 -fPIC")
+set(CMAKE_CXX_STANDARD 14)
+
+find_package(catkin QUIET)
+if(${catkin_FOUND})
+  catkin_package(
+    INCLUDE_DIRS include
+    LIBRARIES ${PROJECT_SOURCE_DIR}/lib/cpp/${ARCH}/libunitree_legged_sdk.a
+  )
+endif()
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+# one pc one process
+add_executable(example_position example/example_position.cpp)
+target_link_libraries(example_position ${EXTRA_LIBS})
+
+add_executable(example_velocity example/example_velocity.cpp)
+target_link_libraries(example_velocity ${EXTRA_LIBS})
+
+add_executable(example_torque example/example_torque.cpp)
+target_link_libraries(example_torque ${EXTRA_LIBS})
+
+add_executable(example_walk example/example_walk.cpp)
+target_link_libraries(example_walk ${EXTRA_LIBS})
+
+add_executable(example_joystick example/example_joystick.cpp)
+target_link_libraries(example_joystick ${EXTRA_LIBS})
+
+
+# install
+install(TARGETS
+  example_position example_velocity example_torque example_walk example_joystick
+  DESTINATION bin/unitree)
+install(DIRECTORY lib/cpp/${ARCH}/
+  DESTINATION lib/unitree
+  USE_SOURCE_PERMISSIONS)
