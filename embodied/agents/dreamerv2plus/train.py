@@ -8,7 +8,7 @@ warnings.filterwarnings('ignore', '.*is a deprecated alias for.*')
 
 directory = pathlib.Path(__file__)
 try:
-  import google3  # noqa
+  import google3  # type: ignore # noqa
 except ImportError:
   directory = directory.resolve()
 directory = directory.parent

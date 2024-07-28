@@ -6,3 +6,4 @@ MUJOCO_LOG.TXT
 *.un~
 exp
 .DS_Store
+.vscode/

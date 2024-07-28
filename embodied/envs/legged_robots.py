@@ -2,7 +2,6 @@ import embodied
 import numpy as np
 
 from . import gym
-import motion_imitation.envs.env_builder as env_builder
 
 
 class LeggedRobot(embodied.Env):
@@ -12,19 +11,18 @@ class LeggedRobot(embodied.Env):
         task: str,
         repeat:int = 1,
         length: int = 1000,
-        resets: bool = True,
-        robot_type: str = None,
-        is_render: bool = True,
+        resets: bool = True
     ):
-        assert robot_type != None, "RobotType is None. Choose robot"
-        assert robot_type in ("A1", "Go1"), "Incorrect robot type"
+        # assert robot_type != None, "RobotType is None. Choose robot"
+        # assert robot_type in ("A1", "Go1"), "Incorrect robot type"
         assert task in ("sim", "real"), task
 
+        import motion_imitation.envs.env_builder as env_builder
+
         self._gymenv = env_builder.build_env(
-            enable_rendering=is_render,
+            enable_rendering=True,
             num_action_repeat=repeat,
-            use_real_robot=bool(task == "real"),
-            robot_type=robot_type,
+            use_real_robot=bool(task == "real")
         )
         self._env = gym.Gym(
             self._gymenv, obs_key="vector", act_key="action", checks=True

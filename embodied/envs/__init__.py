@@ -11,7 +11,7 @@ from .gym import Gym
 from .hrlgrid import HRLGrid
 from .loconav import LocoNav
 from .minecraft import Minecraft
-from .a1 import A1
+# from .a1 import A1
 from .legged_robots import LeggedRobot
 
 
@@ -46,9 +46,25 @@ def load_single_env(
     env = Gym(task)
   elif suite == 'a1':
     assert size == (64, 64), size
-    env = LeggedRobot(task, repeat, length or 1000, True, robot_type='A1')
+    env = LeggedRobot(task, repeat, length or 1000, True)
+
+
+    '''  
+    assert size == (64, 64), size
+    env = LeggedRobot(task=task,
+                      repeat=repeat,
+                      length=length or 1000,
+                      resets=True, 
+                      robot_type='A1')
   elif suite == 'go1':
-    env = LeggedRobot(task, repeat, length or 1000, True, robot_type='Go1')
+    assert size == (64, 64), size
+    env = LeggedRobot(task=task,
+                      repeat=repeat,
+                      length=length or 1000,
+                      resets=True, 
+                      robot_type='Go1')
+    '''
+
   elif suite == 'xarm':
     assert size == (64, 64), size
     # from .xarm import XArm
