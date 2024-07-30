@@ -11,18 +11,22 @@ class LeggedRobot(embodied.Env):
         task: str,
         repeat:int = 1,
         length: int = 1000,
-        resets: bool = True
+        resets: bool = True,
+        robot_type: str = None,
+        enable_rendering: bool = True
     ):
-        # assert robot_type != None, "RobotType is None. Choose robot"
-        # assert robot_type in ("A1", "Go1"), "Incorrect robot type"
+        assert robot_type != None, "RobotType is None. Choose robot"
+        assert robot_type in ("A1", "Go1"), "Incorrect robot type"
         assert task in ("sim", "real"), task
 
-        import motion_imitation.envs.env_builder as env_builder
+        # don't move the import from this place! It works only like this
+        import motion_imitation.envs.env_builder as env_builder  
 
         self._gymenv = env_builder.build_env(
-            enable_rendering=True,
+            enable_rendering=enable_rendering,
             num_action_repeat=repeat,
-            use_real_robot=bool(task == "real")
+            use_real_robot=bool(task == "real"),
+            robot_type = robot_type
         )
         self._env = gym.Gym(
             self._gymenv, obs_key="vector", act_key="action", checks=True

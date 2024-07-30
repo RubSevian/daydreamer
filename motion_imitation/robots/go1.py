@@ -164,7 +164,7 @@ LOWER_NAME_PATTERN = re.compile(r"\w+_lower_\w+")
 TOE_NAME_PATTERN = re.compile(r"\w+_toe\d*")
 IMU_NAME_PATTERN = re.compile(r"imu\d*")
 
-URDF_FILENAME = os.path.join(parentdir, "motion_imitation/utilities/a1/a1.urdf")
+URDF_FILENAME = os.path.join(parentdir, "motion_imitation/utilities/a1/a1.urdf")  ## TODO: add Go1.urdf
 
 _BODY_B_FIELD_NUMBER = 2
 _LINK_A_FIELD_NUMBER = 3
@@ -263,7 +263,7 @@ def foot_positions_in_base_frame(foot_angles):
                                                    l_hip_sign=(-1)**(i + 1))
   return foot_positions + HIP_OFFSETS
 
-class Go1(a1.A1):
+class Go1(minitaur.Minitaur):
   """A simulation for the Go1 robot."""
 
   # At high replanning frequency, inaccurate values of BODY_MASS/INERTIA

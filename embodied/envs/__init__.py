@@ -44,12 +44,8 @@ def load_single_env(
     env = Dummy(task, size, length or 100)
   elif suite == 'gym':
     env = Gym(task)
+    
   elif suite == 'a1':
-    assert size == (64, 64), size
-    env = LeggedRobot(task, repeat, length or 1000, True)
-
-
-    '''  
     assert size == (64, 64), size
     env = LeggedRobot(task=task,
                       repeat=repeat,
@@ -63,7 +59,6 @@ def load_single_env(
                       length=length or 1000,
                       resets=True, 
                       robot_type='Go1')
-    '''
 
   elif suite == 'xarm':
     assert size == (64, 64), size
