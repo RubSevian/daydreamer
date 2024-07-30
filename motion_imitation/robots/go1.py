@@ -21,6 +21,8 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
+
+
 import enum
 import math
 import re
@@ -166,7 +168,7 @@ LOWER_NAME_PATTERN = re.compile(r"\w+_calf_\w+")
 TOE_NAME_PATTERN = re.compile(r"\w+_toe\d*")
 IMU_NAME_PATTERN = re.compile(r"imu\d*")
 
-URDF_FILENAME = os.path.join(parentdir, "motion_imitation/utilities/go1/go1.urdf")  ## TODO: add Go1.urdf motion_imitation/utilities/a1/a1.urdf
+URDF_FILENAME = os.path.join(parentdir, "motion_imitation/utilities/go1/urdf/go1.urdf")  ## TODO: add Go1.urdf motion_imitation/utilities/a1/a1.urdf
 
 _BODY_B_FIELD_NUMBER = 2
 _LINK_A_FIELD_NUMBER = 3
@@ -304,7 +306,7 @@ class Go1(minitaur.Minitaur):
       enable_action_interpolation=True,
       enable_action_filter=False,
       motor_control_mode=None,
-      motor_torque_limits=TORQUE_LIMIT,
+      motor_torque_limits=None,
       reset_time=1,
       allow_knee_contact=False,
       log_time_per_step=False,
@@ -357,8 +359,37 @@ class Go1(minitaur.Minitaur):
          sensor_variance=JOINT_VELOCITY_VARIANCE)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+  
+    
+    motor_torque_limits =np.array([23.7, 23.7, 35.5]*4) #([23.7, 23.7, 35.5]*4)  ----------########-------TORQUE-----------############
+    
+          
+    lower_limits = np.array([-23.7, -23.7, -35.5])
+    upper_limits = np.array([23.7, 23.7, 35.5])
 
 
+
+    # Функция для применения ограничений
+    def apply_limits(value, lower_limit, upper_limit):
+        if value < lower_limit:
+           return lower_limit
+        elif value > upper_limit:
+            return upper_limit
+        else:
+            return value
+
+      # Применение ограничений ко всем значениям в массиве
+    limited_motor_velocities = np.array([apply_limits(motor_torque_limits[i], lower_limits[i % 3], upper_limits[i % 3]) 
+                                     for i in range(len(motor_torque_limits))])
+
+    #print("Ограниченные момента моторов:")
+    #print(self._motor_torque_limits)
+
+    motor_torque_limits = limited_motor_velocities
+   
+    print(motor_torque_limits)
+
+    #self._observed_motor_torques 
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -388,10 +419,8 @@ class Go1(minitaur.Minitaur):
         enable_action_filter=enable_action_filter,
         reset_time=reset_time)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-    lower_limits = np.array([-23.7, -23.7, -35.5])
-    upper_limits = np.array([23.7, 23.7, 35.5])
-
-
+    motor_torque_limits = self._motor_torque_limits
+    self._motor_torque_limits =np.array([23.7, 23.7, 35.5]*4)
 
     # Функция для применения ограничений
     def apply_limits(value, lower_limit, upper_limit):
@@ -488,9 +517,9 @@ class Go1(minitaur.Minitaur):
     for name, i in zip(MOTOR_NAMES, range(len(MOTOR_NAMES))):
       if "hip_joint" in name:
         angle = INIT_MOTOR_ANGLES[i] + HIP_JOINT_OFFSET
-      elif "upper_joint" in name:
+      elif "thigh_joint" in name:
         angle = INIT_MOTOR_ANGLES[i] + UPPER_LEG_JOINT_OFFSET
-      elif "lower_joint" in name:
+      elif "calf_joint" in name:
         angle = INIT_MOTOR_ANGLES[i] + KNEE_JOINT_OFFSET
       else:
         raise ValueError("The name %s is not recognized as a motor joint." %
@@ -769,6 +798,9 @@ class Go1(minitaur.Minitaur):
     return analytical_leg_jacobian(motor_angles, leg_id)
 
   def GetTrueMotorVelocities(self):
+    motor_velocities = [state[1] for state in self._joint_states]
+
+    motor_velocities =  np.multiply(motor_velocities, self._motor_direction)
     lower_limits = np.array([-30.1, -30.1, -20.06])
     upper_limits = np.array([30.1, 30.1, 20.06])
 
@@ -793,5 +825,5 @@ class Go1(minitaur.Minitaur):
     #for i in range(1,10):
      # print(motor_velocities)
       #time.sleep(1) 
-    return super().GetTrueMotorVelocities(motor_velocities)
+    return motor_velocities
   
