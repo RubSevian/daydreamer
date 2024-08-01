@@ -40,22 +40,22 @@ NUM_MOTORS = 12
 NUM_LEGS = 4
 MOTOR_NAMES = [
     "FR_hip_joint",
-    "FR_upper_joint",
-    "FR_lower_joint",
+    "FR_thigh_joint",
+    "FR_calf_joint",
     "FL_hip_joint",
-    "FL_upper_joint",
-    "FL_lower_joint",
+    "FL_thigh_joint",
+    "FL_calf_joint",
     "RR_hip_joint",
-    "RR_upper_joint",
-    "RR_lower_joint",
+    "RR_thigh_joint",
+    "RR_calf_joint",
     "RL_hip_joint",
-    "RL_upper_joint",
-    "RL_lower_joint",
+    "RL_thigh_joint",
+    "RL_calf_joint",
 ]
 MOTOR_MODE = 0x0A  # 0x0A - Servo mode
 LOWLEVEL  = 0xff
 INIT_RACK_POSITION = [0, 0, 1]
-INIT_POSITION = [0, 0, 0.48]
+INIT_POSITION = [0, 0, 0.30]
 JOINT_DIRECTIONS = np.ones(12)
 HIP_JOINT_OFFSET = 0.0
 UPPER_LEG_JOINT_OFFSET = 0.0
@@ -93,12 +93,12 @@ INIT_MOTOR_ANGLES = np.array([
 ] * NUM_LEGS)
 
 HIP_NAME_PATTERN = re.compile(r"\w+_hip_\w+")
-UPPER_NAME_PATTERN = re.compile(r"\w+_upper_\w+")
-LOWER_NAME_PATTERN = re.compile(r"\w+_lower_\w+")
+UPPER_NAME_PATTERN = re.compile(r"\w+_thigh_\w+")
+LOWER_NAME_PATTERN = re.compile(r"\w+_calf_\w+")
 TOE_NAME_PATTERN = re.compile(r"\w+_toe\d*")
 IMU_NAME_PATTERN = re.compile(r"imu\d*")
 
-URDF_FILENAME = "a1/a1.urdf"  ## FIXME
+URDF_FILENAME = "go1/urdf/go1.urdf"  ## FIXME
 
 _BODY_B_FIELD_NUMBER = 2
 _LINK_A_FIELD_NUMBER = 3
@@ -106,47 +106,49 @@ _LINK_A_FIELD_NUMBER = 3
 
 class Go1Robot(go1.Go1):
   """Interface for real Go1 robot."""
-  MPC_BODY_MASS = 108 / 9.8
-  MPC_BODY_INERTIA = np.array((0.24, 0, 0, 0, 0.80, 0, 0, 0, 1.00))
+  MPC_BODY_MASS = 5.204 * 2 
+  MPC_BODY_INERTIA = np.array((0.0168128557, 0, 0, 
+                                      0, 0.063009565, 0, 
+                                      0, 0, 0.0716547275)) * 5.
 
-  MPC_BODY_HEIGHT = 0.24
+  MPC_BODY_HEIGHT = 0.30
   ACTION_CONFIG = [
       locomotion_gym_config.ScalarField(name="FR_hip_motor",
-                                        upper_bound=0.802851455917,
-                                        lower_bound=-0.802851455917),
-      locomotion_gym_config.ScalarField(name="FR_upper_joint",
-                                        upper_bound=4.18879020479,
-                                        lower_bound=-1.0471975512),
-      locomotion_gym_config.ScalarField(name="FR_lower_joint",
-                                        upper_bound=-0.916297857297,
-                                        lower_bound=-2.69653369433),
+                                        upper_bound=1.047,
+                                        lower_bound=-1.047),
+      locomotion_gym_config.ScalarField(name="FR_thigh_joint",
+                                        upper_bound=2.966,
+                                        lower_bound=-0.663),
+      locomotion_gym_config.ScalarField(name="FR_calf_joint",
+                                        upper_bound=-0.837,
+                                        lower_bound=-2.721),
       locomotion_gym_config.ScalarField(name="FL_hip_motor",
-                                        upper_bound=0.802851455917,
-                                        lower_bound=-0.802851455917),
-      locomotion_gym_config.ScalarField(name="FL_upper_joint",
-                                        upper_bound=4.18879020479,
-                                        lower_bound=-1.0471975512),
-      locomotion_gym_config.ScalarField(name="FL_lower_joint",
-                                        upper_bound=-0.916297857297,
-                                        lower_bound=-2.69653369433),
+                                        upper_bound=1.047,
+                                        lower_bound=-1.047),
+      locomotion_gym_config.ScalarField(name="FL_thigh_joint",
+                                        upper_bound=2.966,
+                                        lower_bound=-0.663),
+      locomotion_gym_config.ScalarField(name="FL_calf_joint",
+                                        upper_bound=-0.837,
+                                        lower_bound=-2.721),
       locomotion_gym_config.ScalarField(name="RR_hip_motor",
-                                        upper_bound=0.802851455917,
-                                        lower_bound=-0.802851455917),
-      locomotion_gym_config.ScalarField(name="RR_upper_joint",
-                                        upper_bound=4.18879020479,
-                                        lower_bound=-1.0471975512),
-      locomotion_gym_config.ScalarField(name="RR_lower_joint",
-                                        upper_bound=-0.916297857297,
-                                        lower_bound=-2.69653369433),
+                                        upper_bound=1.047,
+                                        lower_bound=-1.047),
+      locomotion_gym_config.ScalarField(name="RR_thigh_joint",
+                                        upper_bound=2.966,
+                                        lower_bound=-0.663),
+      locomotion_gym_config.ScalarField(name="RR_calf_joint",
+                                        upper_bound=-0.837,
+                                        lower_bound=-2.721),
       locomotion_gym_config.ScalarField(name="RL_hip_motor",
-                                        upper_bound=0.802851455917,
-                                        lower_bound=-0.802851455917),
-      locomotion_gym_config.ScalarField(name="RL_upper_joint",
-                                        upper_bound=4.18879020479,
-                                        lower_bound=-1.0471975512),
-      locomotion_gym_config.ScalarField(name="RL_lower_joint",
-                                        upper_bound=-0.916297857297,
-                                        lower_bound=-2.69653369433),
+                                        upper_bound=1.047,
+                                        lower_bound=-1.047),
+      locomotion_gym_config.ScalarField(name="RL_thigh_joint",
+                                        upper_bound=2.966,
+                                        lower_bound=-0.663),
+      locomotion_gym_config.ScalarField(name="RL_calf_joint",
+                                        upper_bound=-0.837,
+                                        lower_bound=-2.721),
   ]
   # Strictly enforce joint limits on the real robot, for safety.
   JOINT_EPSILON = 0.0

@@ -21,7 +21,8 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
-
+import collections
+import collections.abc
 
 import enum
 import math
@@ -306,7 +307,7 @@ class Go1(minitaur.Minitaur):
       enable_action_interpolation=True,
       enable_action_filter=False,
       motor_control_mode=None,
-      motor_torque_limits=None,
+      motor_torque_limits= TORQUE_LIMIT,
       reset_time=1,
       allow_knee_contact=False,
       log_time_per_step=False,
@@ -358,41 +359,6 @@ class Go1(minitaur.Minitaur):
          accelerometer_variance=ACCELEROMETER_VARIANCE,
          sensor_variance=JOINT_VELOCITY_VARIANCE)
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-  
-    
-    motor_torque_limits =np.array([23.7, 23.7, 35.5]*4) #([23.7, 23.7, 35.5]*4)  ----------########-------TORQUE-----------############
-    
-          
-    lower_limits = np.array([-23.7, -23.7, -35.5])
-    upper_limits = np.array([23.7, 23.7, 35.5])
-
-
-
-    # Функция для применения ограничений
-    def apply_limits(value, lower_limit, upper_limit):
-        if value < lower_limit:
-           return lower_limit
-        elif value > upper_limit:
-            return upper_limit
-        else:
-            return value
-
-      # Применение ограничений ко всем значениям в массиве
-    limited_motor_velocities = np.array([apply_limits(motor_torque_limits[i], lower_limits[i % 3], upper_limits[i % 3]) 
-                                     for i in range(len(motor_torque_limits))])
-
-    #print("Ограниченные момента моторов:")
-    #print(self._motor_torque_limits)
-
-    motor_torque_limits = limited_motor_velocities
-   
-    print(motor_torque_limits)
-
-    #self._observed_motor_torques 
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
     super().__init__(
         pybullet_client=pybullet_client,
@@ -418,35 +384,48 @@ class Go1(minitaur.Minitaur):
         enable_action_interpolation=enable_action_interpolation,
         enable_action_filter=enable_action_filter,
         reset_time=reset_time)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-    motor_torque_limits = self._motor_torque_limits
-    self._motor_torque_limits =np.array([23.7, 23.7, 35.5]*4)
+    
+  #       # Вызываем метод для установки предела моментов
+  #   self.set_motor_torque_limits(motor_torque_limits)
 
-    # Функция для применения ограничений
-    def apply_limits(value, lower_limit, upper_limit):
-        if value < lower_limit:
-           return lower_limit
-        elif value > upper_limit:
-            return upper_limit
-        else:
-            return value
+  # def set_motor_torque_limits(self, motor_torque_limits):
+  #       # """Устанавливает значения для моторных моментов с учетом ограничений."""
+  #       # if isinstance(motor_torque_limits, (collections.abc.Sequence, np.ndarray)):
+  #       #     self._motor_torque_limits = np.asarray(motor_torque_limits)
+  #       # elif motor_torque_limits is None:
+  #       #     self._motor_torque_limits = np.array([23.7, 23.7, 35.5] * 4)
+  #       # else:
+  #       self._motor_torque_limits = np.array([0, 0, 0] * 4)
 
-      # Применение ограничений ко всем значениям в массиве
-    limited_motor_velocities = np.array([apply_limits(self._motor_torque_limits[i], lower_limits[i % 3], upper_limits[i % 3]) 
-                                     for i in range(len(self._motor_torque_limits))])
+  #       # Определяем ограничения
+  #       lower_limits = np.array([-23.7, -23.7, -35.5])
+  #       upper_limits = np.array([23.7, 23.7, 35.5])
 
-    #print("Ограниченные момента моторов:")
-    #print(self._motor_torque_limits)
+  #       # Функция для применения ограничений
+  #       def apply_limits(value, lower_limit, upper_limit):
+  #           if value < lower_limit:
+  #               return lower_limit
+  #           elif value > upper_limit:
+  #               return upper_limit
+  #           else:
+  #               return value
 
-    self._motor_torque_limits = limited_motor_velocities
-    #for i in range(1,10):
-     # print(self._motor_torque_limits)
-     # time.sleep(10)   
-    print(self._motor_torque_limits)
+  #       # Применяем ограничения ко всем значениям в массиве
+  #       limited_motor_torque_limits = np.array([
+  #           apply_limits(self._motor_torque_limits[i], lower_limits[i % 3], upper_limits[i % 3])
+  #           for i in range(len(self._motor_torque_limits))
+  #       ])
+        
 
+  #       # Устанавливаем ограниченные значения
+  #       self._motor_torque_limits = limited_motor_torque_limits
+  #       motor_torque_limits = self._motor_torque_limits
+  #       print("Ограниченные момента моторов:", self._motor_torque_limits)
+  #       return motor_torque_limits
 
+  #       # Вы можете включить вывод значений, если нужно для отладки
+  #       #print("Ограниченные момента моторов:", self._motor_torque_limits)
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
   def __del__(self):
     self.LogTimesteps()
 
@@ -827,3 +806,6 @@ class Go1(minitaur.Minitaur):
       #time.sleep(1) 
     return motor_velocities
   
+
+  # def GetTrueMotorTorques(self):
+  #   self._observed_motor_torques
