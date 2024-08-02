@@ -241,7 +241,7 @@ class LocomotionGymEnv(gym.Env):
           reset_time=self._gym_config.simulation_parameters.reset_time,
           reset_at_current_position=self._gym_config.simulation_parameters.
           reset_at_current_position,
-          motor_torque_limits=self._gym_config.simulation_parameters.torque_limits,
+          motor_torque_limits=self._gym_config.simulation_parameters.torque_limits, ## FIXME
           enable_clip_motor_commands=self._gym_config.simulation_parameters.
           enable_clip_motor_commands,
           enable_action_filter=self._gym_config.simulation_parameters.

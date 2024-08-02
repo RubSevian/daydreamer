@@ -61,9 +61,8 @@ JOINT_OFFSETS = np.array(
 PI = math.pi
 
 MAX_MOTOR_ANGLE_CHANGE_PER_STEP = 0.2  # TODO
-# TODO: Find appropriate limits.
 MAX_JOINT_VELOCITY = np.inf  # rad/s (was 11)
-MAX_TORQUE = 42  # N-m  # TODO: 45
+MAX_TORQUE = np.array([23.7, 23.7, 35.5] * NUM_LEGS)
 
 # _DEFAULT_HIP_POSITIONS = (
 #     (0.17, -0.135, 0),

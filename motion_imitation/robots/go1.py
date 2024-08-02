@@ -21,15 +21,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
-import collections
 import collections.abc
-
-import attr
-import sys
-#sys.path.append('env/utilities')
-from motion_imitation.envs.locomotion_gym_config import SimulationParameters
-from dataclasses import dataclass
-
 import enum
 import math
 import re
@@ -41,7 +33,7 @@ from motion_imitation.robots import a1_robot_velocity_estimator
 from motion_imitation.robots import laikago_constants
 from motion_imitation.robots import laikago_motor
 from motion_imitation.robots import minitaur  # Is it important yet?
-from motion_imitation.robots import a1
+# from motion_imitation.robots import a1
 from motion_imitation.robots import robot_config
 from motion_imitation.envs import locomotion_gym_config
 
@@ -71,11 +63,9 @@ JOINT_OFFSETS = np.array(
 PI = math.pi
 
 MAX_MOTOR_ANGLE_CHANGE_PER_STEP = 0.2  # TODO
-# TODO: Find appropriate limits.
-TORQUE_LIMIT = np.array([23.7, 23.7, 35.5] * NUM_LEGS)
+MAX_TORQUE = np.array([23.7, 23.7, 35.5] * NUM_LEGS)
 MAX_JOINT_VELOCITY =  np.array([30.1, 30.1, 20.06] * NUM_LEGS)
 # MAX_JOINT_VELOCITY = np.inf  # rad/s (was 11)
-#MAX_TORQUE = 42  # N-m  # TODO: 45
 
 DEFAULT_HIP_POSITIONS = (
      (0.1, 0.8, -1.5), #(0.179, 0.497, 0.360)
@@ -275,6 +265,15 @@ def foot_positions_in_base_frame(foot_angles):
   return foot_positions + HIP_OFFSETS
 
 
+# For torque limits
+def apply_limits(value, lower_limit, upper_limit):
+  if value < lower_limit:
+      return lower_limit
+  elif value > upper_limit:
+      return upper_limit
+  return value
+
+
 class Go1(minitaur.Minitaur):
   """A simulation for the Go1 robot."""
 
@@ -314,7 +313,7 @@ class Go1(minitaur.Minitaur):
       enable_action_interpolation=True,
       enable_action_filter=False,
       motor_control_mode=None,
-      motor_torque_limits= TORQUE_LIMIT,
+      motor_torque_limits=MAX_TORQUE,
       reset_time=1,
       allow_knee_contact=False,
       log_time_per_step=False,
@@ -382,7 +381,7 @@ class Go1(minitaur.Minitaur):
         motor_overheat_protection=False,
         motor_control_mode=motor_control_mode,
         motor_model_class=laikago_motor.LaikagoMotorModel,
-        motor_torque_limits=TORQUE_LIMIT,#motor_torque_limits,
+        motor_torque_limits=motor_torque_limits,
         sensors=sensors,
         motor_kp=motor_kp,
         motor_kd=motor_kd,
@@ -639,7 +638,7 @@ class Go1(minitaur.Minitaur):
 
   def _ValidateMotorStates(self):
     # Check torque.
-    if any(np.abs(self.GetTrueMotorTorques()) > TORQUE_LIMIT ): #self._motor_torque_limits
+    if any(np.abs(self.GetTrueMotorTorques()) > MAX_TORQUE ):
       raise robot_config.SafetyError(
           "Torque limits exceeded\ntorques: {}".format(
               self.GetTrueMotorTorques()))
@@ -754,15 +753,6 @@ class Go1(minitaur.Minitaur):
     lower_limits = np.array([-30.1, -30.1, -20.06])
     upper_limits = np.array([30.1, 30.1, 20.06])
 
-    # Функция для применения ограничений
-    def apply_limits(value, lower_limit, upper_limit):
-      if value < lower_limit:
-          return lower_limit
-      elif value > upper_limit:
-         return upper_limit
-      else:
-         return value
-
     # Применение ограничений ко всем значениям в массиве
     limited_motor_velocities = np.array([apply_limits(motor_velocities[i], lower_limits[i % 3], upper_limits[i % 3]) 
                                      for i in range(len(motor_velocities))])
@@ -771,11 +761,8 @@ class Go1(minitaur.Minitaur):
     #print(limited_motor_velocities)
     motor_velocities = limited_motor_velocities
 
-
     #for i in range(1,10):
      # print(motor_velocities)
       #time.sleep(1) 
     return motor_velocities
   
-
-
