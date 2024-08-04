@@ -66,8 +66,7 @@ PI = math.pi
 
 MAX_MOTOR_ANGLE_CHANGE_PER_STEP = 0.2  # TODO
 MAX_TORQUE = np.array([23.7, 23.7, 35.5] * NUM_LEGS)
-MAX_JOINT_VELOCITY = np.array([30.1,30.1,20.06]*NUM_LEGS) #np.array([30.1, 30.1, 20.06] * NUM_LEGS)
-# MAX_JOINT_VELOCITY = np.inf  # rad/s (was 11)
+MAX_JOINT_VELOCITY = np.array([30.1,30.1,20.06]*NUM_LEGS)
 
 DEFAULT_HIP_POSITIONS = (
      (0.1, 0.8, -1.5), #(0.179, 0.497, 0.360)
@@ -265,7 +264,6 @@ def foot_positions_in_base_frame(foot_angles):
     foot_positions[i] = foot_position_in_hip_frame(foot_angles[i],
                                                    l_hip_sign=(-1)**(i + 1))
   return foot_positions + HIP_OFFSETS
-
 
 
 class Go1(minitaur.Minitaur):
@@ -739,31 +737,4 @@ class Go1(minitaur.Minitaur):
     # Does not work for Minitaur which has the four bar mechanism for now.
     motor_angles = self.GetMotorAngles()[leg_id * 3:(leg_id + 1) * 3]
     return analytical_leg_jacobian(motor_angles, leg_id)
-
-  def GetTrueMotorVelocities(self):
-    motor_velocities = [state[1] for state in self._joint_states]
-
-    motor_velocities =  np.multiply(motor_velocities, self._motor_direction)
-    print(f"Old: {motor_velocities}")
-    lower_limits = np.array([-30.1, -30.1, -20.06])
-    upper_limits = np.array([30.1, 30.1, 20.06])   
-    #lower_limits = np.array([-30.1, -30.1, -20.06])
-    #upper_limits = np.array([30.1, 30.1, 20.06])
-    # # For torque limits
-    def apply_limits(value, lower_limit, upper_limit):
-      if value < lower_limit:
-        return lower_limit
-      elif value > upper_limit:
-        return upper_limit
-      return value
-    # Применение ограничений ко всем значениям в массиве
-    limited_motor_velocities = np.array([apply_limits(motor_velocities[i], lower_limits[i % 3], upper_limits[i % 3]) 
-                                     for i in range(len(motor_velocities))])
-
-    motor_velocities=limited_motor_velocities
-    print(f"New: {limited_motor_velocities}")
-    
-    return motor_velocities
-  
-
     
