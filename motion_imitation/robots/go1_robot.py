@@ -159,18 +159,6 @@ class Go1Robot(go1.Go1):
                enable_clip_motor_commands=True,
                reset_func_name='_StandupReset',
                **kwargs):
-    
-    if 'velocity_source' in kwargs:
-      del kwargs['velocity_source']
-
-    super().__init__(
-        pybullet_client,
-        time_step=time_step,
-        enable_clip_motor_commands=enable_clip_motor_commands,
-        velocity_source=go1.VelocitySource.IMU_FOOT_CONTACT,
-        reset_func_name=reset_func_name,
-        **kwargs)
-    
     # Initialize pd gain vector
     self._pybullet_client = pybullet_client
     self.time_step = time_step
@@ -201,8 +189,17 @@ class Go1Robot(go1.Go1):
     self._child_pipe = None
     self._hold_process = None
 
+    if 'velocity_source' in kwargs:
+      del kwargs['velocity_source']
+
     reset_func_name='_StandupReset'
-    
+    super().__init__(
+        pybullet_client,
+        time_step=time_step,
+        enable_clip_motor_commands=enable_clip_motor_commands,
+        velocity_source=go1.VelocitySource.IMU_FOOT_CONTACT,
+        reset_func_name=reset_func_name,
+        **kwargs)
     self._init_complete = True
 
   def ReceiveObservation(self):
