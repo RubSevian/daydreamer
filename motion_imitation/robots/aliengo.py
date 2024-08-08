@@ -276,13 +276,13 @@ class Aliengo(minitaur.Minitaur):
   MPC_BODY_INERTIA = np.array((0.0168128557, 0, 0, 
                                       0, 0.063009565, 0, 
                                       0, 0, 0.0716547275)) * 5.
-  MPC_BODY_HEIGHT = 0.30
+  MPC_BODY_HEIGHT = 0.42
   MPC_VELOCITY_MULTIPLIER = 0.5
   ACTION_CONFIG = [
       locomotion_gym_config.ScalarField(name=key, upper_bound=hi, lower_bound=lo)
       for key, hi, lo in zip(MOTOR_NAMES, MOTOR_MAXS, MOTOR_MINS)]
   INIT_RACK_POSITION = [0, 0, 1]
-  INIT_POSITION = [0, 0, 0.30]
+  INIT_POSITION = [0, 0, 0.42]
   INIT_ORIENTATION = (0, 0, 0, 1)
   # Joint angles are allowed to be JOINT_EPSILON outside their nominal range.
   # This accounts for imprecision seen in either pybullet's enforcement of joint

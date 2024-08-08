@@ -59,7 +59,7 @@ def load_single_env(
                       length=length or 1000,
                       resets=True, 
                       robot_type='Go1')
-  elif suite == 'Aliengo':
+  elif suite == 'aliengo':
     assert size == (64, 64), size
     env = LeggedRobot(task=task,
                       repeat=repeat,

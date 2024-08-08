@@ -55,7 +55,7 @@ MOTOR_NAMES = [
 MOTOR_MODE = 0x0A  # 0x0A - Servo mode
 LOWLEVEL  = 0xff
 INIT_RACK_POSITION = [0, 0, 1]
-INIT_POSITION = [0, 0, 0.30]
+INIT_POSITION = [0, 0, 0.42]
 JOINT_DIRECTIONS = np.ones(12)
 HIP_JOINT_OFFSET = 0.0
 UPPER_LEG_JOINT_OFFSET = 0.0
@@ -111,7 +111,7 @@ class AliengoRobot(aliengo.Aliengo):
                                       0, 0.063009565, 0, 
                                       0, 0, 0.0716547275)) * 5.
 
-  MPC_BODY_HEIGHT = 0.30
+  MPC_BODY_HEIGHT = 0.42
   ACTION_CONFIG = [
       locomotion_gym_config.ScalarField(name="FR_hip_motor",
                                         upper_bound=1.047,
