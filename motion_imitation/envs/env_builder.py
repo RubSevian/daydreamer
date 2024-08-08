@@ -23,7 +23,7 @@ import numpy as np
 from motion_imitation.envs import locomotion_gym_config, locomotion_gym_env
 from motion_imitation.envs.env_wrappers import observation_dictionary_to_array_wrapper, simple_openloop, simple_forward_task, trajectory_generator_wrapper_env, rma_task
 from motion_imitation.envs.sensors import robot_sensors
-from motion_imitation.robots import a1, a1_robot, go1, go1_robot
+from motion_imitation.robots import a1, a1_robot, go1, go1_robot,aliengo,aliengo_robot
 
 def build_env(enable_rendering=False,
               num_action_repeat=20,
@@ -40,15 +40,15 @@ def build_env(enable_rendering=False,
   sim_params.num_action_repeat = num_action_repeat
   sim_params.render_height = 64
   sim_params.render_width = 64
-  sim_params.torque_limits = a1.MAX_TORQUE if robot_type == "A1" else go1.MAX_TORQUE
+  sim_params.torque_limits = a1.MAX_TORQUE if robot_type == "A1" else go1.MAX_TORQUE if robot_type =="Go1" else aliengo.MAX_TORQUE
   gym_config = locomotion_gym_config.LocomotionGymConfig(simulation_parameters=sim_params)
 
   robot_kwargs = {"self_collision_enabled": False}
   
   if use_real_robot:
-    robot_class = a1_robot.A1Robot if robot_type == "A1" else go1_robot.Go1Robot
+    robot_class = a1_robot.A1Robot if robot_type == "A1" else go1_robot.Go1Robot if robot_type =="Go1" else aliengo_robot.AliengoRobot
   else:  # Sim
-    robot_class = a1.A1 if robot_type == "A1" else go1.Go1
+    robot_class = a1.A1 if robot_type == "A1" else go1.Go1 if robot_type == "Go1" else aliengo.Aliengo
   
   if use_real_robot or realistic_sim:
     robot_kwargs["reset_func_name"] = "_SafeJointsReset"
