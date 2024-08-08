@@ -241,7 +241,7 @@ class LocomotionGymEnv(gym.Env):
           reset_time=self._gym_config.simulation_parameters.reset_time,
           reset_at_current_position=self._gym_config.simulation_parameters.
           reset_at_current_position,
-          motor_torque_limits=self._gym_config.simulation_parameters.torque_limits, ## FIXME
+          motor_torque_limits=self._gym_config.simulation_parameters.torque_limits,
           enable_clip_motor_commands=self._gym_config.simulation_parameters.
           enable_clip_motor_commands,
           enable_action_filter=self._gym_config.simulation_parameters.
@@ -366,6 +366,8 @@ class LocomotionGymEnv(gym.Env):
 
     reward = self._reward()
 
+    print(f"[loco_gym_env] reward: {reward}")
+
     done = self._termination()
     self._env_step_counter += 1
     if done:
@@ -436,6 +438,9 @@ class LocomotionGymEnv(gym.Env):
 
   def _reward(self):
     if self._task:
+      # we pass this class to task class
+      # because there is __call__ method inside RMATask Class
+      # that recieves an env as an argument
       return self._task(self)
     return 0
 

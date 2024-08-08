@@ -65,7 +65,7 @@ JOINT_OFFSETS = np.array(
 PI = math.pi
 
 MAX_MOTOR_ANGLE_CHANGE_PER_STEP = 0.2  # TODO
-MAX_TORQUE = np.array([23.7, 23.7, 35.5] * NUM_LEGS)
+MAX_TORQUE = np.array([28.7, 28.7, 40] * NUM_LEGS)
 MAX_JOINT_VELOCITY = np.array([30.1,30.1,20.06]*NUM_LEGS)
 
 DEFAULT_HIP_POSITIONS = (
@@ -351,15 +351,11 @@ class Go1(minitaur.Minitaur):
     self._max_tau = 0
     self._velocity_estimator = None
 
-    print("motor_torque_limits before def call:", motor_torque_limits)
-
     if velocity_source is VelocitySource.IMU_FOOT_CONTACT:
      self._velocity_estimator = a1_robot_velocity_estimator.VelocityEstimator(
          robot=self,
          accelerometer_variance=ACCELEROMETER_VARIANCE,
          sensor_variance=JOINT_VELOCITY_VARIANCE)
-
-    print("motor_torque_limits before super call:", motor_torque_limits)
     
     super().__init__(
         pybullet_client=pybullet_client,
@@ -385,8 +381,6 @@ class Go1(minitaur.Minitaur):
         enable_action_interpolation=enable_action_interpolation,
         enable_action_filter=enable_action_filter,
         reset_time=reset_time)
-    print("motor_torque_limits after super call:", motor_torque_limits)
-
 
   def __del__(self):
     self.LogTimesteps()
