@@ -18,6 +18,7 @@ This should be identical to locomotion_gym_config.proto.
 """
 import attr
 import typing
+import numpy as np
 from motion_imitation.robots import robot_config
 
 
@@ -44,7 +45,7 @@ class SimulationParameters(object):
   allow_knee_contact = attr.ib(type=bool, default=False)
   enable_clip_motor_commands = attr.ib(type=bool, default=True)
   reset_at_current_position = attr.ib(type=bool, default=False)
-  torque_limits = attr.ib(type=float, default=42.0)
+  torque_limits = attr.ib(type=np.ndarray, default=False)
 
 
 @attr.s

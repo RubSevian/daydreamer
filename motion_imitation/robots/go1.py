@@ -21,6 +21,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
+import collections.abc
 import enum
 import math
 import re
@@ -28,11 +29,13 @@ import numpy as np
 import pybullet as pyb  # pytype: disable=import-error
 import time
 
+import asyncio
+
 from motion_imitation.robots import a1_robot_velocity_estimator
 from motion_imitation.robots import laikago_constants
 from motion_imitation.robots import laikago_motor
 from motion_imitation.robots import minitaur  # Is it important yet?
-from motion_imitation.robots import a1
+# from motion_imitation.robots import a1
 from motion_imitation.robots import robot_config
 from motion_imitation.envs import locomotion_gym_config
 
@@ -40,17 +43,17 @@ NUM_MOTORS = 12
 NUM_LEGS = 4
 MOTOR_NAMES = [
     "FR_hip_joint",
-    "FR_upper_joint",
-    "FR_lower_joint",
+    "FR_thigh_joint",
+    "FR_calf_joint",
     "FL_hip_joint",
-    "FL_upper_joint",
-    "FL_lower_joint",
+    "FL_thigh_joint",
+    "FL_calf_joint",
     "RR_hip_joint",
-    "RR_upper_joint",
-    "RR_lower_joint",
+    "RR_thigh_joint",
+    "RR_calf_joint",
     "RL_hip_joint",
-    "RL_upper_joint",
-    "RL_lower_joint",
+    "RL_thigh_joint",
+    "RL_calf_joint",
 ]
 JOINT_DIRECTIONS = np.ones(12)
 HIP_JOINT_OFFSET = 0.0
@@ -62,20 +65,20 @@ JOINT_OFFSETS = np.array(
 PI = math.pi
 
 MAX_MOTOR_ANGLE_CHANGE_PER_STEP = 0.2  # TODO
-MAX_JOINT_VELOCITY = np.inf  # rad/s (was 11)
-MAX_TORQUE = 42  # N-m  # TODO: 45
+MAX_TORQUE = np.array([28.7, 28.7, 40] * NUM_LEGS)
+MAX_JOINT_VELOCITY = np.array([30.1,30.1,20.06]*NUM_LEGS)
 
-# _DEFAULT_HIP_POSITIONS = (
-#     (0.17, -0.135, 0),
-#     (0.17, 0.13, 0),
-#     (-0.195, -0.135, 0),
-#     (-0.195, 0.13, 0),
-# )
+DEFAULT_HIP_POSITIONS = (
+     (0.1, 0.8, -1.5), #(0.179, 0.497, 0.360)
+     (-0.1, 0.8, -1.5),#(-0.594, 0.219, 0.602)
+     ( 0.1, 1.0, -1.5),#( 0.543, 0.539, 0.436)
+     (-0.1, 1.0, -1.5),#(-0.241, 0.440, 0.210)
+ )
 
-COM_OFFSET = -np.array([0.012731, 0.002186, 0.000515])
-HIP_OFFSETS = np.array([[0.183, -0.047, 0.], [0.183, 0.047, 0.],
-                        [-0.183, -0.047, 0.], [-0.183, 0.047, 0.]
-                        ]) + COM_OFFSET
+COM_OFFSET = -np.array([0.0223, 0.002, -0.0005]) # Test Param
+HIP_OFFSETS = np.array([[0.1881, -0.04675, 0.], [0.1881, 0.04675, 0.],
+                        [-0.1881, -0.04675, 0.], [-0.1881, 0.04675, 0.]
+                        ]) + COM_OFFSET 
 
 ABDUCTION_P_GAIN = 100.0
 ABDUCTION_D_GAIN = 1.0
@@ -85,33 +88,32 @@ KNEE_P_GAIN = 100.0
 KNEE_D_GAIN = 2.0
 
 # Bases on the readings from Laikago's default pose.
-INIT_MOTOR_ANGLES = np.array([0, 0.9, -1.8] * NUM_LEGS)
+INIT_MOTOR_ANGLES = np.array([0, 0.9, -1.8] * NUM_LEGS) # maybe add from DEFAULT_HIP_POSITION
 
 MOTOR_NAMES = [
     "FR_hip_joint",
-    "FR_upper_joint",
-    "FR_lower_joint",
+    "FR_thigh_joint",
+    "FR_calf_joint",
     "FL_hip_joint",
-    "FL_upper_joint",
-    "FL_lower_joint",
+    "FL_thigh_joint",
+    "FL_calf_joint",
     "RR_hip_joint",
-    "RR_upper_joint",
-    "RR_lower_joint",
+    "RR_thigh_joint",
+    "RR_calf_joint",
     "RL_hip_joint",
-    "RL_upper_joint",
-    "RL_lower_joint",
+    "RL_thigh_joint",
+    "RL_calf_joint",
 ]
-
 MOTOR_MINS = np.array([
-    -0.802851455917,
-    -1.0471975512,
-    -2.69653369433,
+    -1.047,
+    -0.663,
+    -2.721,
 ] * 4)
 
 MOTOR_MAXS = np.array([
-    0.802851455917,
-    4.18879020479,
-    -0.916297857297,
+    1.047,
+    2.966,
+    -0.837,
 ] * 4)
 
 MOTOR_OFFSETS = np.array([
@@ -159,17 +161,17 @@ def normalize_action(action, clip=True):
 
 
 HIP_NAME_PATTERN = re.compile(r"\w+_hip_\w+")
-UPPER_NAME_PATTERN = re.compile(r"\w+_upper_\w+")
-LOWER_NAME_PATTERN = re.compile(r"\w+_lower_\w+")
+UPPER_NAME_PATTERN = re.compile(r"\w+_thigh_\w+")
+LOWER_NAME_PATTERN = re.compile(r"\w+_calf_\w+")
 TOE_NAME_PATTERN = re.compile(r"\w+_toe\d*")
 IMU_NAME_PATTERN = re.compile(r"imu\d*")
 
-URDF_FILENAME = os.path.join(parentdir, "motion_imitation/utilities/a1/a1.urdf")  ## TODO: add Go1.urdf
+URDF_FILENAME = os.path.join(parentdir, "motion_imitation/utilities/go1/urdf/go1.urdf")  ## TODO: add Go1.urdf motion_imitation/utilities/a1/a1.urdf
 
 _BODY_B_FIELD_NUMBER = 2
 _LINK_A_FIELD_NUMBER = 3
 
-# Empirical values from real A1.
+# Empirical values from real A1.#TODO
 ACCELEROMETER_VARIANCE = 0.03059
 JOINT_VELOCITY_VARIANCE = 0.006206
 
@@ -183,9 +185,9 @@ class VelocitySource(enum.Enum):
 # to 5ms with decorators.
 # @numba.jit(nopython=True, cache=True)
 def foot_position_in_hip_frame_to_joint_angle(foot_position, l_hip_sign=1):
-  l_up = 0.2
-  l_low = 0.2
-  l_hip = 0.08505 * l_hip_sign
+  l_up = 0.213
+  l_low = 0.213
+  l_hip = 0.08 * l_hip_sign
   x, y, z = foot_position[0], foot_position[1], foot_position[2]
   theta_knee = -np.arccos(
       (x**2 + y**2 + z**2 - l_hip**2 - l_low**2 - l_up**2) /
@@ -201,9 +203,9 @@ def foot_position_in_hip_frame_to_joint_angle(foot_position, l_hip_sign=1):
 # @numba.jit(nopython=True, cache=True)
 def foot_position_in_hip_frame(angles, l_hip_sign=1):
   theta_ab, theta_hip, theta_knee = angles[0], angles[1], angles[2]
-  l_up = 0.2
-  l_low = 0.2
-  l_hip = 0.08505 * l_hip_sign
+  l_up = 0.213
+  l_low = 0.213
+  l_hip = 0.08 * l_hip_sign
   leg_distance = np.sqrt(l_up**2 + l_low**2 +
                          2 * l_up * l_low * np.cos(theta_knee))
   eff_swing = theta_hip + theta_knee / 2
@@ -226,9 +228,9 @@ def analytical_leg_jacobian(leg_angles, leg_id):
   ` leg_angles: a list of 3 numbers for current abduction, hip and knee angle.
     l_hip_sign: whether it's a left (1) or right(-1) leg.
   """
-  l_up = 0.2
-  l_low = 0.2
-  l_hip = 0.08505 * (-1)**(leg_id + 1)
+  l_up = 0.213
+  l_low = 0.213
+  l_hip = 0.08 * (-1)**(leg_id + 1)
 
   t1, t2, t3 = leg_angles[0], leg_angles[1], leg_angles[2]
   l_eff = np.sqrt(l_up**2 + l_low**2 + 2 * l_up * l_low * np.cos(t3))
@@ -263,21 +265,24 @@ def foot_positions_in_base_frame(foot_angles):
                                                    l_hip_sign=(-1)**(i + 1))
   return foot_positions + HIP_OFFSETS
 
+
 class Go1(minitaur.Minitaur):
   """A simulation for the Go1 robot."""
 
   # At high replanning frequency, inaccurate values of BODY_MASS/INERTIA
   # doesn't seem to matter much. However, these values should be better tuned
   # when the replan frequency is low (e.g. using a less beefy CPU).
-  MPC_BODY_MASS = 108 / 9.8
-  MPC_BODY_INERTIA = np.array((0.017, 0, 0, 0, 0.057, 0, 0, 0, 0.064)) * 4.
-  MPC_BODY_HEIGHT = 0.24
+  MPC_BODY_MASS = 5.204 * 2 #108 / 9.8
+  MPC_BODY_INERTIA = np.array((0.0168128557, 0, 0, 
+                                      0, 0.063009565, 0, 
+                                      0, 0, 0.0716547275)) * 5.
+  MPC_BODY_HEIGHT = 0.30
   MPC_VELOCITY_MULTIPLIER = 0.5
   ACTION_CONFIG = [
       locomotion_gym_config.ScalarField(name=key, upper_bound=hi, lower_bound=lo)
       for key, hi, lo in zip(MOTOR_NAMES, MOTOR_MAXS, MOTOR_MINS)]
   INIT_RACK_POSITION = [0, 0, 1]
-  INIT_POSITION = [0, 0, 0.25870023]
+  INIT_POSITION = [0, 0, 0.30]
   INIT_ORIENTATION = (0, 0, 0, 1)
   # Joint angles are allowed to be JOINT_EPSILON outside their nominal range.
   # This accounts for imprecision seen in either pybullet's enforcement of joint
@@ -305,7 +310,7 @@ class Go1(minitaur.Minitaur):
       allow_knee_contact=False,
       log_time_per_step=False,
       observation_noise_stdev=(0.0,) * 6,
-      velocity_source=VelocitySource.PYBULLET,
+      velocity_source=VelocitySource.PYBULLET
   ):
     """Constructor.
 
@@ -351,7 +356,7 @@ class Go1(minitaur.Minitaur):
          robot=self,
          accelerometer_variance=ACCELEROMETER_VARIANCE,
          sensor_variance=JOINT_VELOCITY_VARIANCE)
-
+    
     super().__init__(
         pybullet_client=pybullet_client,
         time_step=time_step,
@@ -447,9 +452,9 @@ class Go1(minitaur.Minitaur):
     for name, i in zip(MOTOR_NAMES, range(len(MOTOR_NAMES))):
       if "hip_joint" in name:
         angle = INIT_MOTOR_ANGLES[i] + HIP_JOINT_OFFSET
-      elif "upper_joint" in name:
+      elif "thigh_joint" in name:
         angle = INIT_MOTOR_ANGLES[i] + UPPER_LEG_JOINT_OFFSET
-      elif "lower_joint" in name:
+      elif "calf_joint" in name:
         angle = INIT_MOTOR_ANGLES[i] + KNEE_JOINT_OFFSET
       else:
         raise ValueError("The name %s is not recognized as a motor joint." %
@@ -619,7 +624,7 @@ class Go1(minitaur.Minitaur):
 
   def _ValidateMotorStates(self):
     # Check torque.
-    if any(np.abs(self.GetTrueMotorTorques()) > self._motor_torque_limits):
+    if any(np.abs(self.GetTrueMotorTorques()) > MAX_TORQUE ):
       raise robot_config.SafetyError(
           "Torque limits exceeded\ntorques: {}".format(
               self.GetTrueMotorTorques()))
@@ -726,3 +731,4 @@ class Go1(minitaur.Minitaur):
     # Does not work for Minitaur which has the four bar mechanism for now.
     motor_angles = self.GetMotorAngles()[leg_id * 3:(leg_id + 1) * 3]
     return analytical_leg_jacobian(motor_angles, leg_id)
+    

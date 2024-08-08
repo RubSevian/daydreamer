@@ -366,6 +366,8 @@ class LocomotionGymEnv(gym.Env):
 
     reward = self._reward()
 
+    print(f"[loco_gym_env] reward: {reward}")
+
     done = self._termination()
     self._env_step_counter += 1
     if done:
@@ -436,6 +438,9 @@ class LocomotionGymEnv(gym.Env):
 
   def _reward(self):
     if self._task:
+      # we pass this class to task class
+      # because there is __call__ method inside RMATask Class
+      # that recieves an env as an argument
       return self._task(self)
     return 0
 

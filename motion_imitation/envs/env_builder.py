@@ -31,7 +31,8 @@ def build_env(enable_rendering=False,
               use_real_robot=False,
               realistic_sim=True,
               robot_type=None):
-
+   
+  assert robot_type != None, "robot type is None!"
   sim_params = locomotion_gym_config.SimulationParameters()
   sim_params.enable_rendering = enable_rendering
   sim_params.allow_knee_contact = True
@@ -39,30 +40,15 @@ def build_env(enable_rendering=False,
   sim_params.num_action_repeat = num_action_repeat
   sim_params.render_height = 64
   sim_params.render_width = 64
-
+  sim_params.torque_limits = a1.MAX_TORQUE if robot_type == "A1" else go1.MAX_TORQUE
   gym_config = locomotion_gym_config.LocomotionGymConfig(simulation_parameters=sim_params)
 
   robot_kwargs = {"self_collision_enabled": False}
-
-  '''
-  if use_real_robot:
-    raise NotImplementedError("real robot interface not implemeted yet. Use task a1_sim")
-    # robot_class = a1_robot.A1Robot  # FIXME
-  else:
-    robot_class = a1.A1
-  '''
   
-  assert robot_type != None, "robot type is None!"
   if use_real_robot:
-    if robot_type == "A1":
-      robot_class = a1_robot.A1Robot
-    else:
-      robot_class = go1_robot.Go1Robot
+    robot_class = a1_robot.A1Robot if robot_type == "A1" else go1_robot.Go1Robot
   else:  # Sim
-    if robot_type == "A1":
-      robot_class = a1.A1
-    else:
-      robot_class = go1.Go1
+    robot_class = a1.A1 if robot_type == "A1" else go1.Go1
   
   if use_real_robot or realistic_sim:
     robot_kwargs["reset_func_name"] = "_SafeJointsReset"
