@@ -16,7 +16,7 @@ class LeggedRobot(embodied.Env):
         enable_rendering: bool = True
     ):
         assert robot_type != None, "RobotType is None. Choose robot"
-        assert robot_type in ("A1", "Go1"), "Incorrect robot type"
+        assert robot_type in ("A1", "Go1","Aliengo"), "Incorrect robot type"
         assert task in ("sim", "real"), task
 
         # don't move the import from this place! It works only like this
