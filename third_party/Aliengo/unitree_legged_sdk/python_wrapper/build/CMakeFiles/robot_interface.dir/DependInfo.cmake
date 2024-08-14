@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/sber/Documents/SDK_TEST/Aliengo/unitree_legged_sdk/python_wrapper/python_interface.cpp" "CMakeFiles/robot_interface.dir/python_interface.cpp.o" "gcc" "CMakeFiles/robot_interface.dir/python_interface.cpp.o.d"
+  "/home/sber/Documents/daydreamer/daydreamer/third_party/Aliengo/unitree_legged_sdk/python_wrapper/python_interface.cpp" "CMakeFiles/robot_interface.dir/python_interface.cpp.o" "gcc" "CMakeFiles/robot_interface.dir/python_interface.cpp.o.d"
   )
 
 # Targets to which this target links.

@@ -1,4 +1,4 @@
-# Install script for directory: /home/sber/Documents/SDK_TEST/Aliengo/unitree_legged_sdk/python_wrapper/third-party/pybind11
+# Install script for directory: /home/sber/Documents/daydreamer/daydreamer/third_party/Aliengo/unitree_legged_sdk/python_wrapper/third-party/pybind11
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

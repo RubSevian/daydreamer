@@ -52,10 +52,8 @@ MOTOR_NAMES = [
     "RL_thigh_joint",
     "RL_calf_joint",
 ]
-MOTOR_MODE = 0x0A  # 0x0A - Servo mode
-LOWLEVEL  = 0xff
 INIT_RACK_POSITION = [0, 0, 1]
-INIT_POSITION = [0, 0, 0.42]
+INIT_POSITION = [0, 0, 0.15]
 JOINT_DIRECTIONS = np.ones(12)
 HIP_JOINT_OFFSET = 0.0
 UPPER_LEG_JOINT_OFFSET = 0.0
@@ -72,11 +70,11 @@ _DEFAULT_HIP_POSITIONS = (
     (-0.195, 0.13, 0),
 )
 
-ABDUCTION_P_GAIN = 80.0
+ABDUCTION_P_GAIN = 20.0
 ABDUCTION_D_GAIN = 1.0
-HIP_P_GAIN = 80.0
+HIP_P_GAIN = 20.0
 HIP_D_GAIN = 2.0
-KNEE_P_GAIN = 80.0
+KNEE_P_GAIN = 20.0
 KNEE_D_GAIN = 2.0
 
 MOTOR_KPS = [ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN] * 4
@@ -98,57 +96,65 @@ LOWER_NAME_PATTERN = re.compile(r"\w+_calf_\w+")
 TOE_NAME_PATTERN = re.compile(r"\w+_toe\d*")
 IMU_NAME_PATTERN = re.compile(r"imu\d*")
 
-URDF_FILENAME = "go1/urdf/go1.urdf"  ## FIXME
+URDF_FILENAME = "aliengo/urdf/aliengo.urdf"
 
 _BODY_B_FIELD_NUMBER = 2
 _LINK_A_FIELD_NUMBER = 3
 
+# Unitree Legged SDK related
+TARGET_PORT = 8007
+# LOCAL_PORT = 8082
+LOCAL_PORT = 8080
+TARGET_IP = "192.168.123.10"   # target IP address
+LOW_CMD_LENGTH = 610
+LOW_STATE_LENGTH = 771
+LOWLEVEL  = 0xff
 
 class AliengoRobot(aliengo.Aliengo):
   """Interface for real Aliengo robot."""
-  MPC_BODY_MASS = 5.204 * 2 
-  MPC_BODY_INERTIA = np.array((0.0168128557, 0, 0, 
-                                      0, 0.063009565, 0, 
-                                      0, 0, 0.0716547275)) * 5.
+  MPC_BODY_MASS = 11.644 #  9.041 * 2 or 11.644 * 2 FIXME 
+  MPC_BODY_INERTIA = np.array((0.051944892, 0, 0, 
+                                      0, 0.24693924, 0, 
+                                      0, 0, 0.270948307)) 
 
-  MPC_BODY_HEIGHT = 0.42
+  MPC_BODY_HEIGHT = 0.15
   ACTION_CONFIG = [
       locomotion_gym_config.ScalarField(name="FR_hip_motor",
                                         upper_bound=1.047,
-                                        lower_bound=-1.047),
+                                        lower_bound=-0.873),
       locomotion_gym_config.ScalarField(name="FR_thigh_joint",
-                                        upper_bound=2.966,
-                                        lower_bound=-0.663),
+                                        upper_bound=3.927,
+                                        lower_bound=-0.524),
       locomotion_gym_config.ScalarField(name="FR_calf_joint",
-                                        upper_bound=-0.837,
-                                        lower_bound=-2.721),
+                                        upper_bound=-0.611,
+                                        lower_bound=-2.775),
       locomotion_gym_config.ScalarField(name="FL_hip_motor",
                                         upper_bound=1.047,
-                                        lower_bound=-1.047),
+                                        lower_bound=-0.873),
       locomotion_gym_config.ScalarField(name="FL_thigh_joint",
-                                        upper_bound=2.966,
-                                        lower_bound=-0.663),
+                                        upper_bound=3.927,
+                                        lower_bound=-0.524),
       locomotion_gym_config.ScalarField(name="FL_calf_joint",
-                                        upper_bound=-0.837,
-                                        lower_bound=-2.721),
+                                        upper_bound=-0.611,
+                                        lower_bound=-2.775),
       locomotion_gym_config.ScalarField(name="RR_hip_motor",
                                         upper_bound=1.047,
-                                        lower_bound=-1.047),
+                                        lower_bound=-0.873),
       locomotion_gym_config.ScalarField(name="RR_thigh_joint",
-                                        upper_bound=2.966,
-                                        lower_bound=-0.663),
+                                        upper_bound=3.927,
+                                        lower_bound=-0.524),
       locomotion_gym_config.ScalarField(name="RR_calf_joint",
-                                        upper_bound=-0.837,
-                                        lower_bound=-2.721),
+                                        upper_bound=-0.611,
+                                        lower_bound=-2.775),
       locomotion_gym_config.ScalarField(name="RL_hip_motor",
                                         upper_bound=1.047,
-                                        lower_bound=-1.047),
+                                        lower_bound=-0.873),
       locomotion_gym_config.ScalarField(name="RL_thigh_joint",
-                                        upper_bound=2.966,
-                                        lower_bound=-0.663),
+                                        upper_bound=3.927,
+                                        lower_bound=-0.524),
       locomotion_gym_config.ScalarField(name="RL_calf_joint",
-                                        upper_bound=-0.837,
-                                        lower_bound=-2.721),
+                                        upper_bound=-0.611,
+                                        lower_bound=-2.775),
   ]
   # Strictly enforce joint limits on the real robot, for safety.
   JOINT_EPSILON = 0.0
@@ -177,11 +183,12 @@ class AliengoRobot(aliengo.Aliengo):
     self._last_reset_time = time.time()
 
     # Initiate UDP for robot state and actions
-    self.udp = sdk.UDP(LOWLEVEL, 8080, "192.168.123.10", 8007)
+    self.udp = sdk.UDP(LOCAL_PORT, TARGET_IP, TARGET_PORT, LOW_CMD_LENGTH, LOW_STATE_LENGTH, -1)
     self.safe = sdk.Safety(sdk.LeggedType.Aliengo)
     self.cmd = sdk.LowCmd()
     self.state = sdk.LowState()
     self.udp.InitCmdData(self.cmd)
+    self.cmd.levelFlag = LOWLEVEL
 
     # Re-entrant lock to ensure one process commands the robot at a time.
     self._robot_command_lock = multiprocessing.RLock()
@@ -295,14 +302,14 @@ class AliengoRobot(aliengo.Aliengo):
     return self._motor_temperatures.copy()
   
   def _SendMotorCommand(self, command):
-    for motor_id in range(NUM_MOTORS):  # FIXME
-        self.cmd.motorCmd[motor_id].mode = MOTOR_MODE
+    for motor_id in range(NUM_MOTORS):
         self.cmd.motorCmd[motor_id].q = command[motor_id * 5]
         self.cmd.motorCmd[motor_id].Kp = command[motor_id * 5 + 1]
         self.cmd.motorCmd[motor_id].dq = command[motor_id * 5 + 2]
         self.cmd.motorCmd[motor_id].Kd = command[motor_id * 5 + 3]
         self.cmd.motorCmd[motor_id].tau = command[motor_id * 5 + 4]
     self.safe.PositionLimit(self.cmd)
+    self.safe.PowerProtect(self.cmd, self.state, 3)
     self.udp.SetSend(self.cmd)
     self.udp.Send()
 

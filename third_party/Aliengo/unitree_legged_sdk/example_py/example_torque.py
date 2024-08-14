@@ -10,7 +10,8 @@ import robot_interface as sdk
 
 # low cmd
 TARGET_PORT = 8007
-LOCAL_PORT = 8082
+#LOCAL_PORT = 8082
+LOCAL_PORT = 8080
 TARGET_IP = "192.168.123.10"   # target IP address
 
 LOW_CMD_LENGTH = 610

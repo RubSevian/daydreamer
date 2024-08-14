@@ -65,8 +65,8 @@ JOINT_OFFSETS = np.array(
 PI = math.pi
 
 MAX_MOTOR_ANGLE_CHANGE_PER_STEP = 0.2  # TODO
-MAX_TORQUE = np.array([28.7, 28.7, 40] * NUM_LEGS)
-MAX_JOINT_VELOCITY = np.array([30.1,30.1,20.06]*NUM_LEGS)
+MAX_TORQUE = np.array([35.278, 35.278, 44.4] * NUM_LEGS)
+MAX_JOINT_VELOCITY = np.array([20.0,20.0,15.89]*NUM_LEGS)
 
 DEFAULT_HIP_POSITIONS = (
      (0.1, 0.8, -1.5), #(0.179, 0.497, 0.360)
@@ -75,9 +75,9 @@ DEFAULT_HIP_POSITIONS = (
      (-0.1, 1.0, -1.5),#(-0.241, 0.440, 0.210)
  )
 
-COM_OFFSET = -np.array([0.0223, 0.002, -0.0005]) # Test Param
-HIP_OFFSETS = np.array([[0.1881, -0.04675, 0.], [0.1881, 0.04675, 0.],
-                        [-0.1881, -0.04675, 0.], [-0.1881, 0.04675, 0.]
+COM_OFFSET = -np.array([0.008811, 0.003839, 0.000273]) # Test Param
+HIP_OFFSETS = np.array([[0.2407, -0.051, 0.], [0.2407, 0.051, 0.],
+                        [-0.2407, -0.051, 0.], [-0.2407, 0.051, 0.]
                         ]) + COM_OFFSET 
 
 ABDUCTION_P_GAIN = 100.0
@@ -105,15 +105,15 @@ MOTOR_NAMES = [
     "RL_calf_joint",
 ]
 MOTOR_MINS = np.array([
-    -1.047,
-    -0.663,
-    -2.721,
+    -0.873,
+    -0.524,
+    -2.775,
 ] * 4)
 
 MOTOR_MAXS = np.array([
     1.047,
-    2.966,
-    -0.837,
+    3.927,
+    -0.611,
 ] * 4)
 
 MOTOR_OFFSETS = np.array([
@@ -185,9 +185,9 @@ class VelocitySource(enum.Enum):
 # to 5ms with decorators.
 # @numba.jit(nopython=True, cache=True)
 def foot_position_in_hip_frame_to_joint_angle(foot_position, l_hip_sign=1):
-  l_up = 0.213
-  l_low = 0.213
-  l_hip = 0.08 * l_hip_sign
+  l_up = 0.25
+  l_low = 0.25
+  l_hip = 0.0868 * l_hip_sign
   x, y, z = foot_position[0], foot_position[1], foot_position[2]
   theta_knee = -np.arccos(
       (x**2 + y**2 + z**2 - l_hip**2 - l_low**2 - l_up**2) /
@@ -203,9 +203,9 @@ def foot_position_in_hip_frame_to_joint_angle(foot_position, l_hip_sign=1):
 # @numba.jit(nopython=True, cache=True)
 def foot_position_in_hip_frame(angles, l_hip_sign=1):
   theta_ab, theta_hip, theta_knee = angles[0], angles[1], angles[2]
-  l_up = 0.213
-  l_low = 0.213
-  l_hip = 0.08 * l_hip_sign
+  l_up = 0.25
+  l_low = 0.25
+  l_hip = 0.0868 * l_hip_sign
   leg_distance = np.sqrt(l_up**2 + l_low**2 +
                          2 * l_up * l_low * np.cos(theta_knee))
   eff_swing = theta_hip + theta_knee / 2
@@ -228,9 +228,9 @@ def analytical_leg_jacobian(leg_angles, leg_id):
   ` leg_angles: a list of 3 numbers for current abduction, hip and knee angle.
     l_hip_sign: whether it's a left (1) or right(-1) leg.
   """
-  l_up = 0.213
-  l_low = 0.213
-  l_hip = 0.08 * (-1)**(leg_id + 1)
+  l_up = 0.25
+  l_low = 0.25
+  l_hip = 0.0868 * (-1)**(leg_id + 1)
 
   t1, t2, t3 = leg_angles[0], leg_angles[1], leg_angles[2]
   l_eff = np.sqrt(l_up**2 + l_low**2 + 2 * l_up * l_low * np.cos(t3))
@@ -272,17 +272,17 @@ class Aliengo(minitaur.Minitaur):
   # At high replanning frequency, inaccurate values of BODY_MASS/INERTIA
   # doesn't seem to matter much. However, these values should be better tuned
   # when the replan frequency is low (e.g. using a less beefy CPU).
-  MPC_BODY_MASS = 5.204 * 2 #108 / 9.8
-  MPC_BODY_INERTIA = np.array((0.0168128557, 0, 0, 
-                                      0, 0.063009565, 0, 
-                                      0, 0, 0.0716547275)) * 5.
-  MPC_BODY_HEIGHT = 0.42
+  MPC_BODY_MASS = 11.644 #108 / 9.8 #FIXME
+  MPC_BODY_INERTIA = np.array((0.051944892, 0, 0, 
+                                      0, 0.24693924, 0, 
+                                      0, 0, 0.270948307)) 
+  MPC_BODY_HEIGHT = 0.15 # 0.42 #35
   MPC_VELOCITY_MULTIPLIER = 0.5
   ACTION_CONFIG = [
       locomotion_gym_config.ScalarField(name=key, upper_bound=hi, lower_bound=lo)
       for key, hi, lo in zip(MOTOR_NAMES, MOTOR_MAXS, MOTOR_MINS)]
   INIT_RACK_POSITION = [0, 0, 1]
-  INIT_POSITION = [0, 0, 0.42]
+  INIT_POSITION = [0, 0, 0.15] # test 35 real 5
   INIT_ORIENTATION = (0, 0, 0, 1)
   # Joint angles are allowed to be JOINT_EPSILON outside their nominal range.
   # This accounts for imprecision seen in either pybullet's enforcement of joint

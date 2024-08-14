@@ -1,5 +1,5 @@
-/home/sber/Documents/SDK_TEST/Aliengo/unitree_legged_sdk/python_wrapper/build/CMakeFiles/robot_interface.dir
-/home/sber/Documents/SDK_TEST/Aliengo/unitree_legged_sdk/python_wrapper/build/CMakeFiles/edit_cache.dir
-/home/sber/Documents/SDK_TEST/Aliengo/unitree_legged_sdk/python_wrapper/build/CMakeFiles/rebuild_cache.dir
-/home/sber/Documents/SDK_TEST/Aliengo/unitree_legged_sdk/python_wrapper/build/third-party/pybind11/CMakeFiles/edit_cache.dir
-/home/sber/Documents/SDK_TEST/Aliengo/unitree_legged_sdk/python_wrapper/build/third-party/pybind11/CMakeFiles/rebuild_cache.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/Aliengo/unitree_legged_sdk/python_wrapper/build/CMakeFiles/robot_interface.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/Aliengo/unitree_legged_sdk/python_wrapper/build/CMakeFiles/edit_cache.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/Aliengo/unitree_legged_sdk/python_wrapper/build/CMakeFiles/rebuild_cache.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/Aliengo/unitree_legged_sdk/python_wrapper/build/third-party/pybind11/CMakeFiles/edit_cache.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/Aliengo/unitree_legged_sdk/python_wrapper/build/third-party/pybind11/CMakeFiles/rebuild_cache.dir
