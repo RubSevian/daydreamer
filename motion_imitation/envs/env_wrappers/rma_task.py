@@ -52,12 +52,7 @@ class RMATask(object):
     # print(
     #     '[x]' if r_kne > 0.7 else '[ ]',
     #     '#' * int(50 * forward_vel))
-    print(f"[rma_task] normed_actions: {normed_actions}")
-    print(f"[rma_task] forward_vel: {forward_vel}")
-    print(f"[rma_task] curr_base_velocity: {self.curr_base_velocity}")
-    print(f"[rma_task] curr_rot_mat: {self.curr_rot_mat}")
 
     reward = r_upr + r_hip + r_sho + r_kne + 10 * (r_vel + 1) / 2
-    print(f"[rma_task] reward: {reward}")
 
     return reward

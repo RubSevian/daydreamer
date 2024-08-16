@@ -72,11 +72,11 @@ _DEFAULT_HIP_POSITIONS = (
     (-0.195, 0.13, 0),
 )
 
-ABDUCTION_P_GAIN = 80.0
+ABDUCTION_P_GAIN = 75.0
 ABDUCTION_D_GAIN = 1.0
-HIP_P_GAIN = 80.0
+HIP_P_GAIN = 75.0
 HIP_D_GAIN = 2.0
-KNEE_P_GAIN = 80.0
+KNEE_P_GAIN = 75.0
 KNEE_D_GAIN = 2.0
 
 MOTOR_KPS = [ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN] * 4
@@ -182,6 +182,9 @@ class Go1Robot(go1.Go1):
     self.cmd = sdk.LowCmd()
     self.state = sdk.LowState()
     self.udp.InitCmdData(self.cmd)
+    # Add to overcome problem with NaN in q = self.state.imu.quaternion
+    # when initializing the robot
+    time.sleep(self.time_step * 10)
 
     # Re-entrant lock to ensure one process commands the robot at a time.
     self._robot_command_lock = multiprocessing.RLock()
@@ -228,6 +231,12 @@ class Go1Robot(go1.Go1):
       # self._SetRobotStateInSim(self._motor_angles, self._motor_velocities)
       self._velocity_estimator.update(self.state.tick / 1000.)
       self._UpdatePosition()
+
+    # print(f"[go1_robot] motor_state: {self.state.motorState[:12]}")
+    # print(f"[go1_robot] base_orientation: {self.GetBaseOrientation()}")
+    # print(f"[go1_robot] base_acceleration: {self.GetBaseAcceleration()}")
+    # base_orientation = self.GetBaseOrientation()
+    # print(f"[go1_robot] rot_matrix: {self.pybullet_client.getMatrixFromQuaternion(base_orientation)}")
 
   def _CheckMotorTemperatures(self):
     if any(self._motor_temperatures > MOTOR_WARN_TEMP_C):
@@ -296,13 +305,14 @@ class Go1Robot(go1.Go1):
   
   def _SendMotorCommand(self, command):
     for motor_id in range(NUM_MOTORS):  # FIXME
-        self.cmd.motorCmd[motor_id].mode = MOTOR_MODE
+        # self.cmd.motorCmd[motor_id].mode = MOTOR_MODE
         self.cmd.motorCmd[motor_id].q = command[motor_id * 5]
         self.cmd.motorCmd[motor_id].Kp = command[motor_id * 5 + 1]
         self.cmd.motorCmd[motor_id].dq = command[motor_id * 5 + 2]
         self.cmd.motorCmd[motor_id].Kd = command[motor_id * 5 + 3]
         self.cmd.motorCmd[motor_id].tau = command[motor_id * 5 + 4]
-    self.safe.PositionLimit(self.cmd)
+    # self.safe.PositionLimit(self.cmd)
+    self.safe.PowerProtect(self.cmd, self.state, 7)
     self.udp.SetSend(self.cmd)
     self.udp.Send()
 
@@ -427,7 +437,7 @@ class Go1Robot(go1.Go1):
                                default_motor_angles=default_motor_angles,
                                reset_time=-1)
     self._currently_resetting = True
-    self._reset_func(default_motor_angles, reset_time)
+    self._reset_func(default_motor_angles, reset_time)  # it's _StandupReset
 
     if self._enable_action_filter:
       self._ResetActionFilter()
@@ -436,8 +446,8 @@ class Go1Robot(go1.Go1):
     self._state_action_counter = 0
     self._step_counter = 0
     self._last_reset_time = time.time()
-    self._currently_resetting = False
     self._last_action = None
+    self._currently_resetting = False
 
   def Terminate(self):
     self.Brake()

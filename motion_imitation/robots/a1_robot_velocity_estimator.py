@@ -86,6 +86,16 @@ class VelocityEstimator:
     rot_mat = np.array(rot_mat).reshape((3, 3))
     calibrated_acc = rot_mat.dot(sensor_acc) + np.array([0., 0., -9.8])
     self.filter.predict(u=calibrated_acc * delta_time_s)
+    
+    # print(f"[velo_estimator] calibrated_acc: {calibrated_acc}")
+    # print(f"[velo_estimator] base_orientation: {base_orientation}")
+    # print(f"[velo_estimator] rot_mat: {rot_mat}")
+    # print(f"[velo_estimator] u: {u_new}")
+    # print(f"[velo_estimator] calibrated acceleration: {calibrated_acc}")
+    # print(f"[velo_estimator] delta time: {delta_time_s}")
+    # print(f"[velo_estimator] rot_mat: {rot_mat}")
+    # print(f"[velo_estimator] base acceleration: {sensor_acc}")
+    # print(f"[velo_estimator] filter state: {self.filter.x}")
 
     # Correct estimation using contact legs
     observed_velocities = []
@@ -100,14 +110,20 @@ class VelocityEstimator:
         base_velocity_in_base_frame = -leg_velocity_in_base_frame[:3]
         observed_velocities.append(rot_mat.dot(base_velocity_in_base_frame))
 
+    # print(f"[velo_estimator] observed_velocities before: {observed_velocities}")
+
     if observed_velocities:
       observed_velocities = np.mean(observed_velocities, axis=0)
       self.filter.update(observed_velocities)
+
+    # print(f"[velo_estimator] filter state: {self.filter.x}")
 
     vel_x = self.moving_window_filter_x.calculate_average(self.filter.x[0])
     vel_y = self.moving_window_filter_y.calculate_average(self.filter.x[1])
     vel_z = self.moving_window_filter_z.calculate_average(self.filter.x[2])
     self._estimated_velocity = np.array([vel_x, vel_y, vel_z])
+
+    # print(f"[velo_estimator] result: {self._estimated_velocity}")
 
   @property
   def estimated_velocity(self):
