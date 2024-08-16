@@ -366,8 +366,6 @@ class LocomotionGymEnv(gym.Env):
 
     reward = self._reward()
 
-    print(f"[loco_gym_env] reward: {reward}")
-
     done = self._termination()
     self._env_step_counter += 1
     if done:

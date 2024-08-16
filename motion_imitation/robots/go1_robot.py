@@ -72,18 +72,19 @@ _DEFAULT_HIP_POSITIONS = (
     (-0.195, 0.13, 0),
 )
 
-ABDUCTION_P_GAIN = 75.0
+ABDUCTION_P_GAIN = 85.0
 ABDUCTION_D_GAIN = 1.0
-HIP_P_GAIN = 75.0
+HIP_P_GAIN = 85.0
 HIP_D_GAIN = 2.0
-KNEE_P_GAIN = 75.0
+KNEE_P_GAIN = 85.0
 KNEE_D_GAIN = 2.0
 
 MOTOR_KPS = [ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN] * 4
 MOTOR_KDS = [ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN] * 4
 # If any motor is above this temperature (Celsius), a warning will be printed.
-# At 60C, Unitree will shut down a motor until it cools off.
-MOTOR_WARN_TEMP_C = 50.0
+# At 60C, Unitree will shut down a motor until it cools off
+# (Maybe for Go1 shut down limits are around 80+C)
+MOTOR_WARN_TEMP_C = 65.0
 
 # Bases on the readings from Laikago's default pose.
 INIT_MOTOR_ANGLES = np.array([
@@ -312,7 +313,7 @@ class Go1Robot(go1.Go1):
         self.cmd.motorCmd[motor_id].Kd = command[motor_id * 5 + 3]
         self.cmd.motorCmd[motor_id].tau = command[motor_id * 5 + 4]
     # self.safe.PositionLimit(self.cmd)
-    self.safe.PowerProtect(self.cmd, self.state, 7)
+    self.safe.PowerProtect(self.cmd, self.state, 9)
     self.udp.SetSend(self.cmd)
     self.udp.Send()
 
