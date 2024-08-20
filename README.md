@@ -73,6 +73,50 @@ CUDA_VISIBLE_DEVICES=0 python embodied/agents/dreamerv2plus/train.py --configs a
 CUDA_VISIBLE_DEVICES=1 python embodied/agents/dreamerv2plus/train.py --configs a1 --task a1_real --run acting --tf.platform gpu --env.kbreset True --imag_horizon 1 --replay_chunk 8 --replay_fixed.minlen 32 --imag_horizon 1 --logdir ~/logdir/run1
 ```
 
+Go1 Robot:
+
+```
+В окне pygame нажимать клавишу :
+  -p (английская раскладка) - поставить процесс обучения на паузу
+  -с (английская раскладка) - продолжить обучение после пазы
+```
+
+For Sim
+
+```
+Чтобы изменить папку в которую мы хотим сохранять данные обучения ,то измените это : ~/logdir/run1 
+```
+
+```
+В случае если вы хотите удалить файлы с предыдущего обучения 
+
+rm -rf ~/logdir/run1
+
+Но если вы хотите продолжить начатое вами обучение то это делать не надо ,так как оно удалит все ранее созданные вами файлы обучения
+```
+
+```
+CUDA_VISIBLE_DEVICES=0 python embodied/agents/dreamerv2plus/train.py --configs go1 --task go1_sim --run learning --tf.platform gpu --logdir ~/logdir/run1
+```
+
+```
+Если вы хотите производить обучение только на одной видеокарте ,то значение CUDA_VISIBLE_DEVICES должно быть одинаковым
+```
+
+```
+CUDA_VISIBLE_DEVICES=0 python embodied/agents/dreamerv2plus/train.py --configs go1 --task go1_sim --run acting --tf.platform gpu --env.kbreset True --imag_horizon 1 --replay_chunk 8 --replay_fixed.minlen 32 --imag_horizon 1 --logdir ~/logdir/run1
+```
+
+For Real
+
+```
+CUDA_VISIBLE_DEVICES=0 python embodied/agents/dreamerv2plus/train.py --configs go1 --task go1_real --run learning --tf.platform gpu --logdir ~/logdir/run1
+```
+
+```
+CUDA_VISIBLE_DEVICES=0 python embodied/agents/dreamerv2plus/train.py --configs go1 --task go1_real --run acting --tf.platform gpu --env.kbreset True --imag_horizon 1 --replay_chunk 8 --replay_fixed.minlen 32 --imag_horizon 1 --logdir ~/logdir/run1
+```
+
 XArm Robot:
 
 ```
