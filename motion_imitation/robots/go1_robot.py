@@ -72,11 +72,11 @@ _DEFAULT_HIP_POSITIONS = (
     (-0.195, 0.13, 0),
 )
 
-ABDUCTION_P_GAIN = 85.0
-ABDUCTION_D_GAIN = 1.0
-HIP_P_GAIN = 85.0
+ABDUCTION_P_GAIN = 70.0
+ABDUCTION_D_GAIN = 2.0
+HIP_P_GAIN = 70.0
 HIP_D_GAIN = 2.0
-KNEE_P_GAIN = 85.0
+KNEE_P_GAIN = 70.0
 KNEE_D_GAIN = 2.0
 
 MOTOR_KPS = [ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN] * 4
@@ -185,7 +185,7 @@ class Go1Robot(go1.Go1):
     self.udp.InitCmdData(self.cmd)
     # Add to overcome problem with NaN in q = self.state.imu.quaternion
     # when initializing the robot
-    time.sleep(self.time_step * 10)
+    # time.sleep(self.time_step * 10)
 
     # Re-entrant lock to ensure one process commands the robot at a time.
     self._robot_command_lock = multiprocessing.RLock()
@@ -228,10 +228,11 @@ class Go1Robot(go1.Go1):
         [motor.tauEst for motor in self.state.motorState[:12]])
     self._motor_temperatures = np.array(
         [motor.temperature for motor in self.state.motorState[:12]])
-    if self._init_complete:
+    if self._init_complete and any(self.GetBaseOrientation()) != 0:
       # self._SetRobotStateInSim(self._motor_angles, self._motor_velocities)
       self._velocity_estimator.update(self.state.tick / 1000.)
       self._UpdatePosition()
+      # print(f"[go1_robot] base_orientation: {self.GetBaseOrientation()}")
 
     # print(f"[go1_robot] motor_state: {self.state.motorState[:12]}")
     # print(f"[go1_robot] base_orientation: {self.GetBaseOrientation()}")

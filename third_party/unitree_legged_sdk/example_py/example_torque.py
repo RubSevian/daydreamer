@@ -47,6 +47,8 @@ if __name__ == '__main__':
         
         udp.Recv()
         udp.GetRecv(state)
+        
+        print(f"quat: {state.imu.quaternion}")
 
         if( motiontime >= 500):
             sin_count += 1
