@@ -252,7 +252,7 @@ go1:
    replay_chunk: 32
    env.amount: 1
    # env.repeat: 25
-   env.repeat: 50
+   env.repeat: 100
    env.resets: False
    env.length: 250
    env.parallel: none

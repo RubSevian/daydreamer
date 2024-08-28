@@ -84,7 +84,7 @@ MOTOR_KDS = [ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN] * 4
 # If any motor is above this temperature (Celsius), a warning will be printed.
 # At 60C, Unitree will shut down a motor until it cools off
 # (Maybe for Go1 shut down limits are around 80+C)
-MOTOR_WARN_TEMP_C = 65.0
+MOTOR_WARN_TEMP_C = 70.0
 
 # Bases on the readings from Laikago's default pose.
 INIT_MOTOR_ANGLES = np.array([
