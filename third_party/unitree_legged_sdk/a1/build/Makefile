@@ -142,6 +142,43 @@ example_walk/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_walk.dir/build.make CMakeFiles/example_walk.dir/build
 .PHONY : example_walk/fast
 
+#=============================================================================
+# Target rules for targets named example_torque
+
+# Build rule for target.
+example_torque: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 example_torque
+.PHONY : example_torque
+
+# fast build rule for target.
+example_torque/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_torque.dir/build.make CMakeFiles/example_torque.dir/build
+.PHONY : example_torque/fast
+
+examples/example_torque.o: examples/example_torque.cpp.o
+.PHONY : examples/example_torque.o
+
+# target to build an object file
+examples/example_torque.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_torque.dir/build.make CMakeFiles/example_torque.dir/examples/example_torque.cpp.o
+.PHONY : examples/example_torque.cpp.o
+
+examples/example_torque.i: examples/example_torque.cpp.i
+.PHONY : examples/example_torque.i
+
+# target to preprocess a source file
+examples/example_torque.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_torque.dir/build.make CMakeFiles/example_torque.dir/examples/example_torque.cpp.i
+.PHONY : examples/example_torque.cpp.i
+
+examples/example_torque.s: examples/example_torque.cpp.s
+.PHONY : examples/example_torque.s
+
+# target to generate assembly for a file
+examples/example_torque.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_torque.dir/build.make CMakeFiles/example_torque.dir/examples/example_torque.cpp.s
+.PHONY : examples/example_torque.cpp.s
+
 examples/example_walk.o: examples/example_walk.cpp.o
 .PHONY : examples/example_walk.o
 
@@ -198,8 +235,12 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... example_torque"
 	@echo "... example_walk"
 	@echo "... robot_interface_a1"
+	@echo "... examples/example_torque.o"
+	@echo "... examples/example_torque.i"
+	@echo "... examples/example_torque.s"
 	@echo "... examples/example_walk.o"
 	@echo "... examples/example_walk.i"
 	@echo "... examples/example_walk.s"

@@ -19,8 +19,9 @@ import os
 import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
-os.sys.path.insert(1, os.path.dirname(currentdir))
+robot_interface_dir = os.path.join(parentdir, "motion_imitation", "python_interface", "go1")
+os.sys.path.insert(0, robot_interface_dir)
+os.sys.path.insert(1, parentdir)
 
 from absl import logging
 import math
@@ -34,7 +35,7 @@ from motion_imitation.robots import go1
 from motion_imitation.robots import minitaur
 from motion_imitation.robots import robot_config
 from motion_imitation.envs import locomotion_gym_config
-import robot_interface as sdk  # type: ignore # pytype: disable=import-error
+import robot_interface_go1 as sdk  # type: ignore # pytype: disable=import-error
 
 NUM_MOTORS = 12
 NUM_LEGS = 4

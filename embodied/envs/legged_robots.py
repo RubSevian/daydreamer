@@ -13,7 +13,7 @@ class LeggedRobot(embodied.Env):
         length: int = 1000,
         resets: bool = True,
         robot_type: str = None,
-        enable_rendering: bool = False
+        enable_rendering: bool = True
     ):
         assert robot_type != None, "RobotType is None. Choose robot"
         assert robot_type in ("A1", "Go1"), "Incorrect robot type"

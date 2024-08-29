@@ -65,6 +65,7 @@ CMAKE_BINARY_DIR = /home/sber/Documents/daydreamer/daydreamer/third_party/unitre
 # The main recursive "all" target.
 all: CMakeFiles/robot_interface_a1.dir/all
 all: CMakeFiles/example_walk.dir/all
+all: CMakeFiles/example_torque.dir/all
 all: /home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/third-party/pybind11/build/all
 .PHONY : all
 
@@ -75,6 +76,7 @@ preinstall: /home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legge
 # The main recursive "clean" target.
 clean: CMakeFiles/robot_interface_a1.dir/clean
 clean: CMakeFiles/example_walk.dir/clean
+clean: CMakeFiles/example_torque.dir/clean
 clean: /home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/third-party/pybind11/build/clean
 .PHONY : clean
 
@@ -100,7 +102,7 @@ clean: /home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk
 CMakeFiles/robot_interface_a1.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/robot_interface_a1.dir/build.make CMakeFiles/robot_interface_a1.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/robot_interface_a1.dir/build.make CMakeFiles/robot_interface_a1.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles --progress-num=3,4 "Built target robot_interface_a1"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles --progress-num=5,6 "Built target robot_interface_a1"
 .PHONY : CMakeFiles/robot_interface_a1.dir/all
 
 # Build rule for subdir invocation for target.
@@ -126,7 +128,7 @@ CMakeFiles/robot_interface_a1.dir/clean:
 CMakeFiles/example_walk.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_walk.dir/build.make CMakeFiles/example_walk.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_walk.dir/build.make CMakeFiles/example_walk.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles --progress-num=1,2 "Built target example_walk"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles --progress-num=3,4 "Built target example_walk"
 .PHONY : CMakeFiles/example_walk.dir/all
 
 # Build rule for subdir invocation for target.
@@ -144,6 +146,32 @@ example_walk: CMakeFiles/example_walk.dir/rule
 CMakeFiles/example_walk.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_walk.dir/build.make CMakeFiles/example_walk.dir/clean
 .PHONY : CMakeFiles/example_walk.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/example_torque.dir
+
+# All Build rule for target.
+CMakeFiles/example_torque.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_torque.dir/build.make CMakeFiles/example_torque.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_torque.dir/build.make CMakeFiles/example_torque.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles --progress-num=1,2 "Built target example_torque"
+.PHONY : CMakeFiles/example_torque.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/example_torque.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/example_torque.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles 0
+.PHONY : CMakeFiles/example_torque.dir/rule
+
+# Convenience name for target.
+example_torque: CMakeFiles/example_torque.dir/rule
+.PHONY : example_torque
+
+# clean rule for target.
+CMakeFiles/example_torque.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_torque.dir/build.make CMakeFiles/example_torque.dir/clean
+.PHONY : CMakeFiles/example_torque.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

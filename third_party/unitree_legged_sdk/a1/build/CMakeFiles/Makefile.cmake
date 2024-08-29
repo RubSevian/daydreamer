@@ -138,4 +138,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/robot_interface_a1.dir/DependInfo.cmake"
   "CMakeFiles/example_walk.dir/DependInfo.cmake"
+  "CMakeFiles/example_torque.dir/DependInfo.cmake"
   )

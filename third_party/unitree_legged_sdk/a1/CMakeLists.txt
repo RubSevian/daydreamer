@@ -25,3 +25,6 @@ target_link_libraries(robot_interface_a1 PRIVATE ${EXTRA_LIBS})
 
 add_executable(example_walk examples/example_walk.cpp)
 target_link_libraries(example_walk PRIVATE ${EXTRA_LIBS})
+
+add_executable(example_torque examples/example_torque.cpp)
+target_link_libraries(example_torque PRIVATE ${EXTRA_LIBS})

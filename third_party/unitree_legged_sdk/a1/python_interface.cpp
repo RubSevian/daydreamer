@@ -83,7 +83,7 @@ namespace py = pybind11;
 
 // TODO: Expose all of comm.h and the RobotInterface Class.
 
-PYBIND11_MODULE(robot_interface, m) {
+PYBIND11_MODULE(robot_interface_a1, m) {
   m.doc() = R"pbdoc(
           A1 Robot Interface Python Bindings
           -----------------------
