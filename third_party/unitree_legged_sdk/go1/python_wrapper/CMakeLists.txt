@@ -22,7 +22,7 @@ set(CMAKE_CXX_STANDARD 14)
 # python
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../lib/python/${ARCH}) # .so .dylib
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../third-party/pybind11 ${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pybind11/build)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../third-party/pybind11 ${CMAKE_CURRENT_SOURCE_DIR}/third-party/pybind11/build)
 
 pybind11_add_module(robot_interface_go1 python_interface.cpp)
 target_link_libraries(robot_interface_go1 PRIVATE ${EXTRA_LIBS} unitree_legged_sdk)

@@ -7,3 +7,4 @@ MUJOCO_LOG.TXT
 exp
 .DS_Store
 .vscode/
+**/build

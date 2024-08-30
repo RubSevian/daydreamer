@@ -35,7 +35,6 @@ from motion_imitation.robots import go1
 from motion_imitation.robots import minitaur
 from motion_imitation.robots import robot_config
 from motion_imitation.envs import locomotion_gym_config
-import robot_interface_go1 as sdk  # type: ignore # pytype: disable=import-error
 
 NUM_MOTORS = 12
 NUM_LEGS = 4
@@ -161,6 +160,9 @@ class Go1Robot(go1.Go1):
                enable_clip_motor_commands=True,
                reset_func_name='_StandupReset',
                **kwargs):
+    # to overcome importing of both python binds for a1 and for go1 at the same time
+    import robot_interface_go1 as sdk  # type: ignore # pytype: disable=import-error
+    
     # Initialize pd gain vector
     self._pybullet_client = pybullet_client
     self.time_step = time_step

@@ -19,7 +19,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS "-O3")
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pybind11 ${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pybind11/build)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pybind11 ${CMAKE_CURRENT_SOURCE_DIR}/third-party/pybind11/build)
 pybind11_add_module(robot_interface_a1 python_interface.cpp)
 target_link_libraries(robot_interface_a1 PRIVATE ${EXTRA_LIBS})
 

@@ -35,7 +35,6 @@ from motion_imitation.robots import a1
 from motion_imitation.robots import minitaur
 from motion_imitation.robots import robot_config
 from motion_imitation.envs import locomotion_gym_config
-from robot_interface_a1 import RobotInterface  # type: ignore # pytype: disable=import-error
 
 NUM_MOTORS = 12
 NUM_LEGS = 4
@@ -160,6 +159,9 @@ class A1Robot(a1.A1):
                reset_func_name='_StandupReset',
                **kwargs):
     """Initializes the robot class."""
+    # to overcome importing of both python binds for a1 and for go1 at the same time
+    from robot_interface_a1 import RobotInterface  # type: ignore # pytype: disable=import-error
+    
     # self._timesteps = None
     # Initialize pd gain vector
     self._pybullet_client = pybullet_client
