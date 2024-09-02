@@ -435,6 +435,8 @@ class A1Robot(a1.A1):
       self.ApplyAction(action, motor_control_mode)
     self.ReceiveObservation()
     self._state_action_counter += 1
+
+    # FIXME: it's not okay, when robot dies silently
     if not self._is_safe:
       return
     try:
@@ -447,7 +449,7 @@ class A1Robot(a1.A1):
       self._is_safe = False
       return
     self._Nap()
-
+    
   def _Nap(self):
     """Sleep for the remainder of self.time_step."""
     now = time.time()
