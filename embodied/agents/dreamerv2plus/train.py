@@ -20,7 +20,6 @@ __package__ = directory.name
 import embodied
 
 def create_logger(logdir: embodied.Path) -> logging.Logger:
-  # Logger config
   logger = logging.getLogger()
   logger.setLevel(logging.DEBUG)
   formatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s')
@@ -53,14 +52,15 @@ def main(argv=None):
     config = config.update(agnt.Agent.configs[name])
   config = embodied.Flags(config).parse(other)
 
-  config = config.update(logdir=str(embodied.Path(config.logdir)))
+  logdir = embodied.Path(config.logdir)
+
+  config = config.update(logdir=str(logdir))
   args = embodied.Config(logdir=config.logdir, **config.train)
   args = args.update(expl_until=args.expl_until // config.env.repeat)
 
-  message_logger = create_logger(embodied.Path(config.logdir))
-  message_logger.info(config)
-
-  logdir = embodied.Path(config.logdir)
+  message_logger = create_logger(logdir)
+  print(config, file=open(logdir / 'config.txt', mode='w'))
+  
   step = embodied.Counter()
 
   outdir = logdir
