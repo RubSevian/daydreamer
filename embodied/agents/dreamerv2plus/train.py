@@ -1,6 +1,7 @@
 import pathlib
 import sys
 import warnings
+import logging
 
 warnings.filterwarnings('ignore', '.*box bound precision lowered.*')
 warnings.filterwarnings('ignore', '.*using stateful random seeds*')
@@ -18,6 +19,27 @@ __package__ = directory.name
 
 import embodied
 
+def create_logger(logdir: embodied.Path) -> logging.Logger:
+  # Logger config
+  logger = logging.getLogger()
+  logger.setLevel(logging.DEBUG)
+  formatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s')
+
+  logdir = embodied.Path(logdir)
+  logdir.mkdirs()
+  log_file = logdir / 'data.log'
+
+  file_handler = logging.FileHandler(log_file)
+  file_handler.setLevel(logging.DEBUG)
+  file_handler.setFormatter(formatter)
+
+  console_handler = logging.StreamHandler()
+  console_handler.setLevel(logging.ERROR)
+  console_handler.setFormatter(formatter)
+
+  logger.addHandler(file_handler)
+  logger.addHandler(console_handler)
+  return logger
 
 def main(argv=None):
   from . import agent as agnt
@@ -34,7 +56,9 @@ def main(argv=None):
   config = config.update(logdir=str(embodied.Path(config.logdir)))
   args = embodied.Config(logdir=config.logdir, **config.train)
   args = args.update(expl_until=args.expl_until // config.env.repeat)
-  print(config)
+
+  message_logger = create_logger(embodied.Path(config.logdir))
+  message_logger.info(config)
 
   logdir = embodied.Path(config.logdir)
   step = embodied.Counter()
