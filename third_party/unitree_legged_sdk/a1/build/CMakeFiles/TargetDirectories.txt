@@ -1,0 +1,7 @@
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles/robot_interface_a1.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles/example_walk.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles/example_torque.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles/edit_cache.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/build/CMakeFiles/rebuild_cache.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/third-party/pybind11/build/CMakeFiles/edit_cache.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/a1/third-party/pybind11/build/CMakeFiles/rebuild_cache.dir

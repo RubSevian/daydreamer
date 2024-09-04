@@ -1,0 +1,5 @@
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/go1/python_wrapper/build/CMakeFiles/robot_interface_go1.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/go1/python_wrapper/build/CMakeFiles/edit_cache.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/go1/python_wrapper/build/CMakeFiles/rebuild_cache.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/go1/python_wrapper/third-party/pybind11/build/CMakeFiles/edit_cache.dir
+/home/sber/Documents/daydreamer/daydreamer/third_party/unitree_legged_sdk/go1/python_wrapper/third-party/pybind11/build/CMakeFiles/rebuild_cache.dir

@@ -53,7 +53,7 @@ MOTOR_NAMES = [
     "RL_calf_joint",
 ]
 INIT_RACK_POSITION = [0, 0, 1]
-INIT_POSITION = [0, 0, 0.15]
+INIT_POSITION = [0, 0, 0.35]
 JOINT_DIRECTIONS = np.ones(12)
 HIP_JOINT_OFFSET = 0.0
 UPPER_LEG_JOINT_OFFSET = 0.0
@@ -70,18 +70,18 @@ _DEFAULT_HIP_POSITIONS = (
     (-0.195, 0.13, 0),
 )
 
-ABDUCTION_P_GAIN = 20.0
+ABDUCTION_P_GAIN = 120.0
 ABDUCTION_D_GAIN = 1.0
-HIP_P_GAIN = 20.0
+HIP_P_GAIN = 120.0
 HIP_D_GAIN = 2.0
-KNEE_P_GAIN = 20.0
+KNEE_P_GAIN = 120.0
 KNEE_D_GAIN = 2.0
 
 MOTOR_KPS = [ABDUCTION_P_GAIN, HIP_P_GAIN, KNEE_P_GAIN] * 4
 MOTOR_KDS = [ABDUCTION_D_GAIN, HIP_D_GAIN, KNEE_D_GAIN] * 4
 # If any motor is above this temperature (Celsius), a warning will be printed.
 # At 60C, Unitree will shut down a motor until it cools off.
-MOTOR_WARN_TEMP_C = 50.0
+MOTOR_WARN_TEMP_C = 70.0
 
 # Bases on the readings from Laikago's default pose.
 INIT_MOTOR_ANGLES = np.array([
@@ -112,12 +112,12 @@ LOWLEVEL  = 0xff
 
 class AliengoRobot(aliengo.Aliengo):
   """Interface for real Aliengo robot."""
-  MPC_BODY_MASS = 11.644 #  9.041 * 2 or 11.644 * 2 FIXME 
+  MPC_BODY_MASS = 9.041*2 #  9.041 * 2 or 11.644 * 2 FIXME 
   MPC_BODY_INERTIA = np.array((0.051944892, 0, 0, 
                                       0, 0.24693924, 0, 
                                       0, 0, 0.270948307)) 
 
-  MPC_BODY_HEIGHT = 0.15
+  MPC_BODY_HEIGHT = 0.35
   ACTION_CONFIG = [
       locomotion_gym_config.ScalarField(name="FR_hip_motor",
                                         upper_bound=1.047,
@@ -231,7 +231,7 @@ class AliengoRobot(aliengo.Aliengo):
         [motor.tauEst for motor in self.state.motorState[:12]])
     self._motor_temperatures = np.array(
         [motor.temperature for motor in self.state.motorState[:12]])
-    if self._init_complete:
+    if self._init_complete and any(self.GetBaseOrientation()) != 0:
       # self._SetRobotStateInSim(self._motor_angles, self._motor_velocities)
       self._velocity_estimator.update(self.state.tick / 1000.)
       self._UpdatePosition()
@@ -308,8 +308,8 @@ class AliengoRobot(aliengo.Aliengo):
         self.cmd.motorCmd[motor_id].dq = command[motor_id * 5 + 2]
         self.cmd.motorCmd[motor_id].Kd = command[motor_id * 5 + 3]
         self.cmd.motorCmd[motor_id].tau = command[motor_id * 5 + 4]
-    self.safe.PositionLimit(self.cmd)
-    self.safe.PowerProtect(self.cmd, self.state, 3)
+    # self.safe.PositionLimit(self.cmd)
+    self.safe.PowerProtect(self.cmd, self.state, 9)
     self.udp.SetSend(self.cmd)
     self.udp.Send()
 
@@ -361,6 +361,7 @@ class AliengoRobot(aliengo.Aliengo):
         # until signalled to stop. This way self._robot_command_lock is retained
         # to avoid another process accidentally commanding the robot.
         if error is not None:
+          print(f"ERROR: {error}")
           continue
         try:
           self._ValidateMotorStates()

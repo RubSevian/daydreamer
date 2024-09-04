@@ -65,7 +65,7 @@ JOINT_OFFSETS = np.array(
 PI = math.pi
 
 MAX_MOTOR_ANGLE_CHANGE_PER_STEP = 0.2  # TODO
-MAX_TORQUE = np.array([35.278, 35.278, 44.4] * NUM_LEGS)
+MAX_TORQUE = 42
 MAX_JOINT_VELOCITY = np.array([20.0,20.0,15.89]*NUM_LEGS)
 
 DEFAULT_HIP_POSITIONS = (
@@ -166,7 +166,7 @@ LOWER_NAME_PATTERN = re.compile(r"\w+_calf_\w+")
 TOE_NAME_PATTERN = re.compile(r"\w+_toe\d*")
 IMU_NAME_PATTERN = re.compile(r"imu\d*")
 
-URDF_FILENAME = os.path.join(parentdir, "motion_imitation/utilities/aliengo/urdf/aliengo.urdf")  ## TODO: add Go1.urdf motion_imitation/utilities/a1/a1.urdf
+URDF_FILENAME = os.path.join(parentdir, "motion_imitation/utilities/aliengo/urdf/aliengo.urdf")
 
 _BODY_B_FIELD_NUMBER = 2
 _LINK_A_FIELD_NUMBER = 3
@@ -272,17 +272,17 @@ class Aliengo(minitaur.Minitaur):
   # At high replanning frequency, inaccurate values of BODY_MASS/INERTIA
   # doesn't seem to matter much. However, these values should be better tuned
   # when the replan frequency is low (e.g. using a less beefy CPU).
-  MPC_BODY_MASS = 11.644 #108 / 9.8 #FIXME
+  MPC_BODY_MASS = 9.041*2 #108 / 9.8 #FIXME
   MPC_BODY_INERTIA = np.array((0.051944892, 0, 0, 
                                       0, 0.24693924, 0, 
                                       0, 0, 0.270948307)) 
-  MPC_BODY_HEIGHT = 0.15 # 0.42 #35
+  MPC_BODY_HEIGHT = 0.35 # 0.42 #35
   MPC_VELOCITY_MULTIPLIER = 0.5
   ACTION_CONFIG = [
       locomotion_gym_config.ScalarField(name=key, upper_bound=hi, lower_bound=lo)
       for key, hi, lo in zip(MOTOR_NAMES, MOTOR_MAXS, MOTOR_MINS)]
   INIT_RACK_POSITION = [0, 0, 1]
-  INIT_POSITION = [0, 0, 0.15] # test 35 real 5
+  INIT_POSITION = [0, 0, 0.35] # test 35 real 5
   INIT_ORIENTATION = (0, 0, 0, 1)
   # Joint angles are allowed to be JOINT_EPSILON outside their nominal range.
   # This accounts for imprecision seen in either pybullet's enforcement of joint
