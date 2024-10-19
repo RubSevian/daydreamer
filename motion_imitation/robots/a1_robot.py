@@ -18,9 +18,10 @@
 import os
 import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
-
+parentdir = os.path.dirname(os.path.dirname(currentdir)) 
+robot_interface_dir = os.path.join(parentdir, "motion_imitation", "python_interface", "a1")
+os.sys.path.insert(0, robot_interface_dir)
+os.sys.path.insert(1, parentdir)
 
 from absl import logging
 import math
@@ -34,7 +35,6 @@ from motion_imitation.robots import a1
 from motion_imitation.robots import minitaur
 from motion_imitation.robots import robot_config
 from motion_imitation.envs import locomotion_gym_config
-# from robot_interface import RobotInterface  # pytype: disable=import-error
 
 NUM_MOTORS = 12
 NUM_LEGS = 4
@@ -159,6 +159,9 @@ class A1Robot(a1.A1):
                reset_func_name='_StandupReset',
                **kwargs):
     """Initializes the robot class."""
+    # to overcome importing of both python binds for a1 and for go1 at the same time
+    from robot_interface_a1 import RobotInterface  # type: ignore # pytype: disable=import-error
+    
     # self._timesteps = None
     # Initialize pd gain vector
     self._pybullet_client = pybullet_client
@@ -432,6 +435,8 @@ class A1Robot(a1.A1):
       self.ApplyAction(action, motor_control_mode)
     self.ReceiveObservation()
     self._state_action_counter += 1
+
+    # FIXME: it's not okay, when robot dies silently
     if not self._is_safe:
       return
     try:
@@ -444,7 +449,7 @@ class A1Robot(a1.A1):
       self._is_safe = False
       return
     self._Nap()
-
+    
   def _Nap(self):
     """Sleep for the remainder of self.time_step."""
     now = time.time()

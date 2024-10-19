@@ -252,7 +252,32 @@ go1:
    replay_chunk: 32
    env.amount: 1
    # env.repeat: 25
-   env.repeat: 50
+   env.repeat: 100
+   env.resets: False
+   env.length: 250
+   env.parallel: none
+   env.restart: False
+   train.train_every: 4
+   actent.target: 0.5  # 0.3
+   discount: 0.995
+   rssm: {deter: 256, units: 256}
+   # train.train_fill: 1000
+   train.train_fill: 5000
+   train.sync_every: 20
+   actor.minstd: 0.1
+   actor.unimix: 0.1
+
+aliengo:
+
+   task: aliengo_sim
+   run: train
+   encoder: {mlp_keys: 'vector', cnn_keys: '$^'}
+   decoder: {mlp_keys: 'vector', cnn_keys: '$^'}
+   batch_size: 32  # 64
+   replay_chunk: 32
+   env.amount: 1
+   # env.repeat: 25
+   env.repeat: 100
    env.resets: False
    env.length: 250
    env.parallel: none

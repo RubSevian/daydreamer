@@ -59,6 +59,111 @@ directory. For more information, also see the [DreamerV2][dv3] repository.
 
 [dv3]: https://github.com/danijar/dreamerv2
 
+## Если вы хотите использовать докер то:
+1.Устанавливаем nvidia-container-toolkit
+Переходим по этой ссылке и выполняем установку [nvidia-container-toolkit][dv4]
+
+[dv4]: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+
+2.Клонируем репозиторий
+```
+git clone git@git.sberrobots.ru:legged-robotics-team/real_robot_learning/daydreamer.git
+cd daydreamer
+git checkout docker
+```
+3.Заходим в папку daydreamer/rl_docker
+```
+cd /home/*your_name_user*/*your_pwd*/daydreamer/rl_docker
+```
+4.Для того чтобы собрать образ контейнера в папке rl_docker вводим:
+
+```bash
+bash build.sh
+```
+5.После сборки контейнера в папке rl_docker прописываем:
+
+```bash
+chmod +x setup.sh
+```
+6.После, чтобы запустить контейнер, пишем в той же директории: 
+```
+bash run.sh -g <gpus, should be num 1~9 or all> -d <true/false>
+# example: bash run.sh -g all -d true
+```
+Чтобы открыть еще один терминал в этом же контейнере преоделываем пунткты 2 в новом терминале и доходим до папки rl_docker и пропиываем :
+```
+bash exec.sh -g all -d true
+```
+
+После запуска контейнера вы окажетесь в директории home/root/rl_ws в ней же и будет находиться дример и туда вы вводите дальнейшие команды для работы с daydreamer
+
+По умолчанию папка logdir будет находиться в root
+
+![alt text](img/root.png)
+
+### Runtime Issue
+
+If you encounter the following error when running the `run.sh` script:
+
+```
+docker: Error response from daemon: could not select device driver "" with capabilities:[[gpu]].
+```
+
+You need to install the `nvidia-container-runtime` and `nvidia-container-toolkit` packages, and modify the Docker daemon startup parameter to change the default runtime to `nvidia-container-runtime`:
+
+```bash
+vi /etc/docker/daemon.json
+```
+
+Update the content to:
+
+```json
+{
+    "default-runtime": "nvidia",
+    "runtimes": {
+        "nvidia": {
+            "path": "/usr/bin/nvidia-container-runtime",
+            "runtimeArgs": []
+        }
+    }
+}
+```
+
+## Если вы хотите использовать conda то:
+1.Устанавливаем драйвера на видеокарту если их нет и устанавливаем cuda (версия cuda выбирается исходя из версии вашего драйвера)
+
+Переходим по этой ссылке и выполняем установку [drivers and cuda][dv4]
+
+[dv4]: https://www.cherryservers.com/blog/install-cuda-ubuntu
+
+2.Устанавливаем nvidia-container-toolkit
+Переходим по этой ссылке и выполняем установку [nvidia-container-toolkit][dv5]
+
+[dv5]: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+
+3.Создаем среду conda 
+```
+conda create -n daydreamer python=3.10
+```
+4.Активируем пространство daydreamer
+```
+conda activate daydreamer
+```
+5.Скачиваем репозиторий 
+```
+git clone git@git.sberrobots.ru:legged-robotics-team/real_robot_learning/daydreamer.git 
+```
+6.Устанавливаем пакеты
+```
+sudo apt-get update
+sudo apt-get install -y software-properties-common build-essential cmake git curl wget
+```
+7.Устанавливаем библиотеки из файла requirement.txt
+```
+Установку выполняем в папке daydreamer
+pip3 install -r requirement.txt
+```
+
 A1 Robot:
 
 ```
